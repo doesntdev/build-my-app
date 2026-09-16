@@ -1,0 +1,10 @@
+# For Railway source builds also copy equivalent rules to .dockerignore.
+.git
+.env
+.env.*
+.build-my-app
+*.pem
+*.key
+*.bak
+node_modules
+__pycache__

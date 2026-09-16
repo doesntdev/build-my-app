@@ -1,0 +1,20 @@
+# Local-only baseline. Match the PostgreSQL major to the chosen Neon project.
+# Run via Podman with the explicitly selected podman-compose provider.
+services:
+  db:
+    image: docker.io/library/postgres:17
+    environment:
+      POSTGRES_DB: app_local
+      POSTGRES_USER: app_local
+      POSTGRES_PASSWORD: local-development-only
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-55432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U app_local -d app_local"]
+      interval: 2s
+      timeout: 2s
+      retries: 30
+    volumes:
+      - app-local-data:/var/lib/postgresql/data
+volumes:
+  app-local-data: {}

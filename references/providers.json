@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "reviewed_on": "2026-09-16",
+  "providers": {
+    "github": {
+      "name": "GitHub",
+      "url": "https://api.githubcopilot.com/mcp/",
+      "auth": "client-dependent OAuth or environment-backed fine-grained PAT",
+      "token_env": "GITHUB_MCP_TOKEN",
+      "docs": "https://github.com/github/github-mcp-server",
+      "smoke": "get_me and read the intended repository",
+      "production_mcp": "reviewed control-plane operations only"
+    },
+    "neon": {
+      "name": "Neon",
+      "url": "https://mcp.neon.tech/mcp",
+      "auth": "oauth",
+      "docs": "https://neon.com/docs/ai/connect-mcp-clients-to-neon",
+      "smoke": "list intended non-production projects/branches",
+      "production_mcp": "prohibited: development and testing only"
+    },
+    "railway": {
+      "name": "Railway",
+      "url": "https://mcp.railway.com",
+      "auth": "oauth",
+      "stdio": {
+        "command": "railway",
+        "args": [
+          "mcp"
+        ],
+        "minimum_cli_version": "5.44.0"
+      },
+      "docs": "https://docs.railway.com/ai/mcp-server",
+      "smoke": "whoami and list-projects or a scoped service read",
+      "production_mcp": "explicit target and approval required"
+    },
+    "cloudflare": {
+      "name": "Cloudflare",
+      "url": "https://mcp.cloudflare.com/mcp",
+      "auth": "oauth",
+      "docs": "https://developers.cloudflare.com/agents/model-context-protocol/cloudflare/servers-for-cloudflare/",
+      "smoke": "search schema then execute exact GET for intended account/zone",
+      "production_mcp": "broad execute capability; constrain provider scopes and review each operation"
+    },
+    "resend": {
+      "name": "Resend",
+      "url": "https://mcp.resend.com/mcp",
+      "auth": "oauth",
+      "docs": "https://resend.com/docs/mcp-server",
+      "smoke": "list sending domains; no email send",
+      "production_mcp": "real sends and control-plane writes require explicit approval"
+    }
+  }
+}

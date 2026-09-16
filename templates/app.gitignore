@@ -1,0 +1,6 @@
+# Merge into the application's existing ignore rules; do not replace them.
+.env
+.env.*
+!.env.example
+.build-my-app/
+*.bak
