@@ -137,9 +137,10 @@ not merely the workflow file. See [the audit](PUBLICATION-AUDIT.md) and
 ## Validation
 
 See [the validation record](VALIDATION.md) for executed checks and explicit gaps.
-Version 0.1.1 passed 58 tests on Python 3.11 and 3.14 and a real isolated
-Podman/Postgres smoke test. Live provider OAuth and cloud deployment are not
-certified by those tests.
+The [hosted validation suite](https://github.com/doesntdev/build-my-app/actions/runs/35139096695)
+passed 58 tests on Linux, macOS and Windows with Python 3.11 and 3.14.
+A real isolated Podman/Postgres smoke test also passed locally on Linux.
+Live provider OAuth and cloud deployment are not certified by those tests.
 
 ## License
 

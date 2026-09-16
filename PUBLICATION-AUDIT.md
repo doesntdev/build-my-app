@@ -73,8 +73,9 @@ invariants; text checks are not proof of future model adherence.
    application by following this new skill. Do not market it as fully certified
    across every framework or provider configuration.
 3. **Platforms:** local runtime/tests were executed on Linux with Python 3.11/3.14.
-   The macOS/Windows CI matrix is configured, not remotely executed. Native Podman
-   VM and interactive client behavior on those hosts remain untested.
+   Hosted helper tests also passed on Linux, macOS and Windows with both Python
+   versions; see [the verified run](https://github.com/doesntdev/build-my-app/actions/runs/35139096695).
+   Native Podman VM and interactive client behavior on those hosts remain untested.
 4. **Security:** instructions are not a sandbox. Provider least privilege, client
    policy and human consent are the enforcement layers. Helper path checks do not
    promise protection against an actively hostile local filesystem race.
@@ -87,9 +88,11 @@ This is a repeatable release checklist, not a substitute for live CI/release sta
 - [x] Review the exact upload set and license; start with a clean initial history.
       If importing history later, audit that history separately.
 - [x] Enable private vulnerability reporting or provide a real private contact.
-- [ ] Push reviewed source, run the hosted CI matrix and investigate failures.
+- [x] Push reviewed source and verify the initial hosted CI matrix.
+      [All six jobs passed](https://github.com/doesntdev/build-my-app/actions/runs/35139096695);
+      each new release candidate still requires its own green CI.
 - [ ] Tag the approved version; publish the verified archive and checksum.
-- [ ] Add the real source/download URLs to the README after they exist.
+- [x] Add the real source and Releases URLs to the README.
 - [ ] Read back repo visibility, release files, checksum and CI results.
 - [ ] Run a fresh-user pilot with consented non-production accounts before claiming
       end-to-end onboarding or deployment validation.

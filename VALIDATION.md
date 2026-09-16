@@ -50,14 +50,25 @@ Scenario coverage in `tests/scenarios.md` received instruction-level review,
 not actual model-behavior execution. Deterministic tests check helpers and selected
 instruction/config invariants; they cannot establish a model's future behavior.
 
+## Hosted CI
+
+The [first public CI run](https://github.com/doesntdev/build-my-app/actions/runs/35139096695)
+passed for source commit `b885ebd408b067663a0dbc55f411344e4c55bd37` on Linux,
+macOS and Windows with both Python 3.11 and 3.14. All six jobs ran the package
+validator and 58 tests successfully. The release record links the exact final
+candidate's CI run; subsequent revisions must earn their own green checks.
+
+Hosted helper tests do not validate interactive OAuth, Podman VM networking,
+provider account scope or an agent-generated application's cloud deployment.
+
 ## Not executed or not claimed
 
 - Live OAuth or authenticated MCP calls for the five providers.
 - End-to-end app creation and deployment by an agent following this new skill.
 - Real email sends, DNS mutations, purchases, or cloud resource provisioning.
 - Native macOS/Windows Podman or client integrations.
-- Hosted CI or publication status inferred from these local checks; verify the
-  separate live Actions and Releases records linked above.
+- Publication or deployment success inferred from tests alone; verify the
+  separate live Releases record and any application deployment evidence.
 - Comprehensive security audit or proof of all scanner false-negative cases.
 
 These remain target-user or post-publication validation steps. No live agent
