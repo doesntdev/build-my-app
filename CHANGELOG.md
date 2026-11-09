@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.3.1
+
+- Check the canonical upstream main version once per skill invocation and notify when a newer release exists; never apply updates automatically or block normal work on an unavailable check.
+- Add an optional read-only `check-updates` helper with a five-second process deadline, 16 KiB metadata cap, no redirects, numeric release comparison and sanitized failure reports.
+- Keep local customizations/installer refusal intact; no application Git remote, credentialed lookup, executable download, persistent cache or background process is involved.
+- Document patch-only release progression, offline behavior and the manual first upgrade required by older installations; add deterministic transport/version/security regressions.
+
 ## 0.3.0
 
 - Develop root `spec.md` throughout ideation with stable requirements, acceptance and explicit decisions; derive tracked work before implementation in GitHub Issues or a selected alternative tracker.

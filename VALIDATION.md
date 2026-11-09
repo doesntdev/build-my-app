@@ -1,5 +1,44 @@
 # Build My App — validation record
 
+## 0.3.1 — read-only upstream version notices
+
+Qualification performed on 2026-11-09 on `work/read-only-update-check`.
+The package remains in the 0.3.x release series; this is a patch release.
+
+| Check | Observed result |
+| --- | --- |
+| New version/transport/policy regressions | 24 focused tests passed, after the missing feature was observed failing before implementation |
+| Manifest-only installation | 46 allowlisted files; dry run, apply, identical rerun and exact installed-byte parity passed |
+| Installed package validator | Valid on Python 3.14.9 and 3.11.15 |
+| Installed offline suite | 115 tests passed on each interpreter; ordinary tests make no upstream network calls |
+| Actual child timeout | The owned local fetch-child fixture was terminated at the test deadline and reported unavailable; no remote code was executed |
+| Live installed command from another app cwd | Loaded skill 0.3.1 compared with real upstream 0.3.0 and returned local_ahead, ignoring the app's unrelated 99.0.0 manifest |
+| Live higher-version notice | An explicitly labeled local 0.2.0 metadata fixture compared with real upstream 0.3.0 returned update_available and required approval; this does not claim an old installed helper gained new code |
+| Read-only behavior | Installed file hashes unchanged by the live check; update_applied false and read_only true |
+| Independent scoped source review | No material finding/publication blocker in helper, tests, invocation and update reference; parent rechecked all four frozen hashes |
+| Upgrade safety | A customized installation was still refused without overwriting its fixture |
+| Cleanup/preservation | Owned qualification copy removed and absence verified; 442,368 allocated bytes removed; source core and 101 existing graph entries preserved |
+| Entrypoint footprint | 12,351 -> 12,911 bytes, 4.53% growth |
+
+The qualified source-core SHA-256 is
+`f5e15ac2b76a977aef704b3320b442e3709967d69516984fe5632beda2662c8e`.
+Compute it from sorted manifest paths excluding this validation record, each UTF-8
+path followed by NUL and its SHA-256 file-digest bytes. Record-only changes receive
+final package validation; unchanged source-core execution/review evidence is reused.
+
+The new command is a bounded public metadata comparison, not an updater or commit/
+file-integrity assertion. No redirects, arbitrary-source CLI, credentialed GitHub
+lookup, Git fetch/pull, downloaded executable, local cache or background polling
+is used. Network/metadata failure remains explicitly unavailable and does not block
+normal application work. Unknown upstream fields are not returned or followed.
+
+Startup behavior is an agent instruction plus trusted local helper, not a native
+client hook. Existing 0.3.0/older installations first need an approved manual
+upgrade; no active installation was changed during qualification. The independent
+review was not native PR approval or a guarantee of future model behavior. No
+application deployment, provider OAuth, paid inference or GitHub Actions run/query
+was performed. Subsequent owner-authorized source publication is a separate action.
+
 ## 0.3.0 — spec-driven tracked and reviewed delivery
 
 Local package qualification performed on 2026-11-09 on `work/spec-driven-sdlc`.

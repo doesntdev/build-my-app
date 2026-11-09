@@ -30,6 +30,8 @@ publishing and production authority remain the user's decisions.
   reviewed work/promotions through dev -> staging -> main, cleanup, rollback,
   incidents, and ongoing operations.
 - Portable Python helpers, templates, deterministic tests, and a package/privacy check.
+- A bounded, read-only upstream version check once per invocation; newer releases
+  are a notice, not permission to overwrite an installation.
 
 This is **not** an app generator executable, a hosted service, an agent runtime,
 or a promise that every client supports every OAuth flow. Your agent reads the
@@ -155,6 +157,7 @@ For a resume:
 ## Helpers
 
 ```text
+python -B scripts/stack.py check-updates
 python scripts/stack.py doctor --stage local
 python scripts/stack.py doctor --stage publish
 python scripts/stack.py doctor --stage local --profile container
@@ -163,6 +166,13 @@ python scripts/stack.py mcp-config --client claude-code --providers github cloud
 python scripts/stack.py mcp-config --client cursor --providers railway --railway-transport stdio
 python scripts/stack.py mcp-config --client hermes --providers neon
 ```
+
+`check-updates` compares the loaded skill's version with its canonical upstream
+main metadata. It does not use the application's Git remote or modify files.
+Newer versions trigger a brief notice; offline/invalid checks remain unverified
+without blocking work. Applying an update still requires approval and preservation
+of customizations. See [update behavior](references/updates.md), including why
+older installed versions first need a deliberate manual upgrade.
 
 `doctor` defaults to Cloudflare Git/Node prerequisites. Global Wrangler is optional:
 the agent separately verifies the project's installed Wrangler, supported runtime
@@ -186,14 +196,17 @@ reviewing and merging the selected entries. See [client setup](references/mcp-cl
   deployment is also a separate approval from pushing source.
 - Framework support is procedural, not a tested matrix of every web framework.
   Client config tests are not proof of live OAuth in every client/OS combination.
-- No automatic updater, background service, telemetry, or subscription is bundled.
+- No automatic update application, background service, telemetry or subscription
+  is bundled. The startup check reads only bounded public version metadata.
 
 ## Releases and contributions
 
 The public source is [doesntdev/build-my-app](https://github.com/doesntdev/build-my-app).
 This is a standalone, MIT-licensed package; its runtime does not depend on the
-maintainer's accounts or infrastructure. Forks can use their own repository and
-release process. No automatic update endpoint is built in.
+maintainer's accounts or infrastructure. The version check reads this skill's
+canonical public repository metadata, not a private update service. Forks can use
+their own source/release process and deliberately review changing the pinned
+upstream constant/tests. The checker never downloads or installs executable code.
 
 The pre-existing package CI configuration is retained; this update is verified
 locally, not a claim of a new hosted run. Application delivery follows the selected

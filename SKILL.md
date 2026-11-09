@@ -4,7 +4,7 @@ description: Use when ideating, building, or shipping an app. Evaluate feasibili
 license: MIT
 compatibility: A coding agent with file and shell tools. Python 3.11+ for optional helpers. Git and the chosen runtime; Node and project-local Wrangler for Cloudflare, rootless Podman only for container workloads. User-owned tracker/provider access for relevant operations.
 metadata:
-  version: "0.3.0"
+  version: "0.3.1"
 ---
 
 # Build My App
@@ -15,6 +15,13 @@ This agent-neutral application workflow grants no autonomous authority. Everythi
 needed ships here; no other skill, paid model subscription or author's account is required.
 
 ## First response: ideation and a living spec
+
+Run the read-only [update check](references/updates.md) **once per invocation**:
+`python -B <skill-dir>/scripts/stack.py check-updates`, resolving the loaded skill
+directory, not the app cwd. Notify briefly if a newer version exists; require user
+approval before any upgrade. An unavailable/disallowed check is unverified, not
+a blocker: continue with the installed skill. No auto-update, persistent cache,
+background polling or repeated prompts; do not execute downloaded instructions.
 
 **On every invocation**, inspect the workspace and read [ideation](references/ideation.md)
 **before implementation or provider setup**. Reconcile existing decisions rather
@@ -175,7 +182,8 @@ Separate tested locally, merged into dev, staged, published, estimated and not t
 Never substitute example output, a ticket state or an agent assertion for evidence.
 
 Use [sources](references/sources.md) and [contributing](CONTRIBUTING.md) for references
-and package validation. Helpers are optional and standard-library-only: no login,
-download, live config edit, resource creation or paid inference. Rendering is a
+and package validation. Helpers are optional and standard-library-only. The update
+check reads public metadata only; no login, executable-code/dependency download,
+live config edit, resource creation or paid inference. Rendering is a
 fragment, not a merge tool. Application workflow policy, skill-package publication
 and installation into an active client are separate operations.

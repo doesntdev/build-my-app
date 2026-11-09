@@ -80,6 +80,11 @@ selected local/deploy commands are project-specific and must be exercised when g
 
 ## Release
 
+Use patch increments within the current major/minor series unless the owner
+explicitly requests a minor/major change. Workflow/feature scope alone does not
+authorize incrementing the second component. Keep the declared version aligned
+across entrypoint, manifest and changelog.
+
 1. Update `metadata.version` in `SKILL.md`, `MANIFEST.json` and changelog together.
 2. Keep `MANIFEST.json` an explicit allowlist. Include new files deliberately;
    never distribute `.git`, caches, credentials, local onboarding or raw logs.
@@ -95,5 +100,10 @@ selected local/deploy commands are project-specific and must be exercised when g
    archive. Source publication, release creation and active-client installation are
    distinct operations; none follows automatically from local qualification.
 
-No silent auto-updater. A user can inspect a newer release/commit and ask their
-agent to review and apply it. Avoid requiring a particular maintainer account.
+The read-only update check is informational, not a silent auto-updater. Fetch only
+canonical public metadata under the documented deadline/size/redirect limits;
+ordinary offline tests mock that boundary, and real checks are separately labeled.
+Test version comparisons, invalid input, offline/timeout, no local mutation and
+consent-only upgrade instructions. A user can inspect a newer release/commit and
+ask their agent to review/apply it while preserving customizations. No maintainer
+login is required, and an unavailable lookup must not block normal application work.

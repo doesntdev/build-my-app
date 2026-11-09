@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Read-only diagnostics, secret-free config rendering, explicit skill installation."""
+"""Read-only update checks/diagnostics, config fragments and explicit installation."""
 import argparse
 import hashlib
 import json
@@ -16,6 +16,24 @@ CLIENTS = ("codex", "claude-code", "cursor", "hermes")
 PROVIDER_NAMES = ("github", "neon", "railway", "cloudflare", "resend")
 DEFAULT_PROVIDERS = ("cloudflare",)
 PROFILES = ("cloudflare", "container")
+UPSTREAM_MANIFEST_URL = "https://raw.githubusercontent.com/doesntdev/build-my-app/refs/heads/main/MANIFEST.json"
+# Only this trusted local program is executed, never downloaded instructions.
+# The parent probe enforces a total deadline, including DNS and response reads.
+_UPDATE_FETCH_CODE = """
+import sys
+from urllib.request import Request, build_opener, HTTPRedirectHandler
+
+class NoRedirect(HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        return None
+
+request = Request(sys.argv[1], headers={"Accept": "application/json", "User-Agent": "build-my-app-update-check"})
+with build_opener(NoRedirect()).open(request, timeout=4) as response:
+    body = response.read(16385)
+    if len(body) > 16384:
+        raise ValueError("Update metadata exceeds size limit")
+sys.stdout.buffer.write(body)
+"""
 # Security allowlist, intentionally independent of editable provider metadata.
 # Changing an endpoint requires reviewing both the source and this policy.
 OFFICIAL_MCP_URLS = {
@@ -100,6 +118,64 @@ def probe(command, timeout=10):
     except OSError:
         return "failed", ""
     return ("ok", result.stdout) if result.returncode == 0 else ("failed", "")
+
+
+def _release_tuple(value):
+    if not isinstance(value, str) or len(value) > 64 or not re.fullmatch(r"(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)", value):
+        raise ValueError("Invalid numeric release version")
+    return tuple(int(part) for part in value.split("."))
+
+
+def _unique_metadata(pairs):
+    value = {}
+    for key, item in pairs:
+        if key in value:
+            raise ValueError("Duplicate metadata key")
+        value[key] = item
+    return value
+
+
+def check_updates(root=ROOT, runner=probe):
+    """Compare installed release metadata with canonical main; never apply or cache."""
+    result = {"skill": NAME, "status": "unavailable", "local_version": None,
+              "upstream_version": None, "upstream_url": UPSTREAM_MANIFEST_URL,
+              "scope": "release_version_metadata_only", "read_only": True,
+              "update_applied": False, "reason": None,
+              "notice": "Update check unavailable; continue the current skill without updating."}
+    try:
+        local = json.loads(safe_file(Path(root).absolute(), "MANIFEST.json").read_text(encoding="utf-8"),
+                           object_pairs_hook=_unique_metadata)
+        if not isinstance(local, dict) or local.get("name") != NAME:
+            raise ValueError("Unexpected local skill identity")
+        local_version = _release_tuple(local.get("version"))
+        result["local_version"] = local["version"]
+    except (OSError, ValueError, TypeError, UnicodeError, RecursionError):
+        result["reason"] = "invalid_local_metadata"
+        return result
+    status, body = runner([sys.executable, "-I", "-B", "-c", _UPDATE_FETCH_CODE,
+                           UPSTREAM_MANIFEST_URL], timeout=5)
+    if status != "ok":
+        result["reason"] = "timeout" if status == "timeout" else "fetch_failed"
+        return result
+    try:
+        if not isinstance(body, str) or len(body.encode("utf-8")) > 16384:
+            raise ValueError("Invalid metadata size/type")
+        upstream = json.loads(body, object_pairs_hook=_unique_metadata)
+        if not isinstance(upstream, dict) or upstream.get("name") != NAME:
+            raise ValueError("Unexpected upstream skill identity")
+        upstream_version = _release_tuple(upstream.get("version"))
+    except (ValueError, TypeError, UnicodeError, RecursionError):
+        result["reason"] = "invalid_upstream_metadata"
+        return result
+    result["upstream_version"] = upstream["version"]
+    result["notice"] = None
+    if upstream_version > local_version:
+        result["status"] = "update_available"
+        result["notice"] = ("A newer Build My App version is available: " + upstream["version"]
+                            + ". User approval is required to review and apply it; nothing was changed.")
+    else:
+        result["status"] = "up_to_date" if upstream_version == local_version else "local_ahead"
+    return result
 
 
 def doctor(stage="local", runner=probe, system=None, profile="cloudflare"):
@@ -271,6 +347,7 @@ def install(destination, apply=False, root=ROOT):
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
+    commands.add_parser("check-updates", help="Read-only upstream version notice; unavailable checks are nonfatal")
     diag = commands.add_parser("doctor", help="Noninteractive prerequisite probes only")
     diag.add_argument("--stage", choices=("local", "publish"), default="local")
     diag.add_argument("--profile", choices=PROFILES, default="cloudflare",
@@ -285,6 +362,9 @@ def main(argv=None):
     copy.add_argument("--apply", action="store_true")
     args = parser.parse_args(argv)
     try:
+        if args.command == "check-updates":
+            print(json.dumps(check_updates(), indent=2))
+            return 0
         if args.command == "mcp-config":
             print(render_config(args.client, args.providers, args.railway_transport), end="")
             return 0

@@ -1,6 +1,6 @@
 {
   "name": "build-my-app",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "format": "Agent Skills",
   "entrypoint": "SKILL.md",
   "license": "MIT",
@@ -32,6 +32,7 @@
     "references/sdlc.md",
     "references/sources.md",
     "references/stack-selection.md",
+    "references/updates.md",
     "references/workspace-hygiene.md",
     "scripts/stack.py",
     "scripts/verify.py",
@@ -49,6 +50,7 @@
     "tests/test_docs.py",
     "tests/test_sdlc.py",
     "tests/test_stack.py",
+    "tests/test_updates.py",
     "tests/test_verify.py"
   ]
 }
