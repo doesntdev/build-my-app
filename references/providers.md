@@ -1,8 +1,15 @@
 # Provider contracts and connection verification
 
 The machine-readable endpoints and source links are in `providers.json`.
-These recipes were checked against official documentation on 2026-09-16; recheck
+These MCP endpoint/auth recipes were checked on 2026-09-16; recheck
 before setup. A documented integration is not a live-auth test on this machine.
+
+Selection comes from [ideation](ideation.md) and [stack selection](stack-selection.md).
+Cloudflare is the minimum runtime recommendation, not just a DNS wrapper. GitHub
+is recommended for source/tracking; Neon, Railway and Resend are conditional.
+Do not interpret the supported-provider registry as five required accounts.
+Workers AI is an optional Cloudflare capability; external model providers need a
+separate reviewed official integration, not an invented entry in this registry.
 
 ## GitHub — work ledger and source
 
@@ -27,6 +34,9 @@ before setup. A documented integration is not a live-auth test on this machine.
 
 ## Neon — non-production MCP, production Postgres
 
+Only when Postgres is selected. D1 applications need no Neon connection, and
+using Neon from Workers does not itself require a Railway application server.
+
 - Hosted Streamable HTTP: `https://mcp.neon.tech/mcp`; OAuth preferred.
 - Select non-production projects and sanitized branches only. Neon says its MCP
   is for development/testing. Exclude production data even for “read-only” SQL.
@@ -43,6 +53,9 @@ before setup. A documented integration is not a live-auth test on this machine.
 
 ## Railway — runtime, not a second database
 
+Only when a selected runtime/worker cannot or should not run on Workers. Do not
+provision a container service merely because the application needs SQL or AI.
+
 - OAuth remote endpoint: `https://mcp.railway.com` (no invented `/mcp` suffix).
 - An existing authenticated CLI can serve stdio with `railway mcp`; the current
   docs require CLI 5.44.0+ for this proxy. Verify live version and help. It connects
@@ -57,10 +70,19 @@ before setup. A documented integration is not a live-auth test on this machine.
 - Treat `railway-agent` as a broad delegated operator, not a harmless log reader.
   Deploy/redeploy, accept-deploy, variables, services, domains, and deletions need
   precise targets and approved effects, followed by readback.
-- Separate staging/production. Use Neon rather than provisioning Railway Postgres.
-  Bind to injected `PORT`, persist uploads outside the ephemeral application disk.
+- Follow the configured branch-triggered deployment lane, not manual deploy/redeploy
+  overrides. Separate staging/production; recommend Neon only when managed Postgres
+  is needed, preserving an existing supported data layer. Bind to injected `PORT`
+  and persist uploads outside the ephemeral application disk.
 
-## Cloudflare — DNS and the public edge
+## Cloudflare — Workers, D1, R2 and the public edge
+
+Use the selected subset: Workers/Static Assets for web/API, D1 for SQL and private
+R2 for files when needed. Verify account-specific bindings/resources, environment,
+plan/quotas and recovery; do not assume a DNS/zone grant covers Workers or storage.
+Keep runtime bindings and deploy/migration credentials separate from broad MCP
+operator access. Read back exact versions, bindings and target data stores after
+approved changes. Local simulation is not hosted verification.
 
 - Official API MCP: `https://mcp.cloudflare.com/mcp`, browser OAuth; scoped bearer
   token is available for approved noninteractive use.
@@ -72,13 +94,15 @@ before setup. A documented integration is not a live-auth test on this machine.
   the tool name; require reviewed methods/paths/payloads and provider least privilege.
 - Before DNS writes, read existing records, ownership, TTL/proxy state, and exact
   provider-supplied target. Preserve mail records. Never replace an entire zone.
-- Proxied DNS is not origin protection. Test direct Railway origin access; add a
+- Proxied DNS is not origin protection. If Railway is selected, test its direct origin; add a
   supported origin-authentication control or disclose the accepted limitation.
 - Admin/internal routes can use Access. API/webhook clients may need specifically
   scoped service authentication or bypass rules; test them rather than disabling
   the security layer globally. Keep R2 buckets private when used.
 
 ## Resend — transactional email
+
+Only when real outbound email is selected; capture mail remains the local default.
 
 - Hosted Streamable HTTP: `https://mcp.resend.com/mcp`, OAuth preferred. API-key
   auth exists for headless use; keep it separate from the app's sending identity.

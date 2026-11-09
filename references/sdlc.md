@@ -35,6 +35,13 @@ collaboration/cloud publication may not.
 
 ## 2. Define a small change
 
+Use the accepted ideation/charter and stack recommendation. Revisit material
+changes to technical fit, load, data sensitivity, integrations, complexity,
+development/delivery constraints, resource costs or operating burden before
+committing to the affected feature. Carry material risks and their next proof or
+mitigation into acceptance; this is not an AI-only review. Don't restart discovery
+for an unchanged fix. State the agreed slice and required providers on the issue.
+
 Use `templates/github-issue.md`. State outcome, non-goals, acceptance, security/data
 impact, tests, observability, deploy order and recovery. Classify:
 
@@ -59,7 +66,8 @@ authorization failures, idempotency/concurrency and event recovery where relevan
 Use capture mail by default; never use production data in tests.
 
 Run canonical format/lint/type checks, unit/integration tests, migrations from
-zero and upgrade state, production build, Podman runtime smoke, relevant browser
+zero and upgrade state, production build and selected-runtime smoke (Workers local
+bindings or Podman for the container extension), relevant browser
 flows, secrets/dependency/license checks, and diff review. Adapt commands to the
 existing language; don't add Python to the app merely because skill helpers use it.
 Skipped required tests fail the gate; record legitimate N/A reasons explicitly.
@@ -67,7 +75,7 @@ Skipped required tests fail the gate; record legitimate N/A reasons explicitly.
 Exit: acceptance proven in the local production-shaped runtime, clean cleanup,
 no unexplained failures. Record actual commands/results, not an agent's assertion.
 
-## 4. Pull request and CI
+## 4. Pull request and verification
 
 Use `templates/pull-request.md`. Keep a small PR linked to its issue, tests,
 security/data/infrastructure effects, migration compatibility, new secret **names**,
@@ -75,12 +83,13 @@ observability, deploy and recovery. `Closes #...` is appropriate only when merge
 really satisfies completion; deployment-dependent issues should not auto-close
 before release acceptance. Use a non-closing link otherwise.
 
-CI reruns checks independently on PRs and pushes to the protected default branch.
-Set minimal token permissions, pin/review third-party actions, and never grant
-untrusted fork PR code deployment secrets. Do not run untrusted code under a
-privileged `pull_request_target` workflow. Record review requirements based on
-available humans and risk; agent self-review is not independent human approval.
-Check current CI/head SHA and resolve comments before merge. Recheck coordination.
+Use the repository's actual local/deploy-time/CI verification and destination
+controls, bound to the current source. Do not require a new hosted CI vendor or
+workflow just to adopt this skill. Preserve genuine repository-required controls;
+an agent's own policy does not waive them. Keep verification/deploy identities
+least-privilege and never give untrusted changes secrets. Record review requirements
+based on available humans and risk; self-review is not independent human approval.
+Check current results/head SHA and resolve comments before merge. Recheck coordination.
 For stacked PRs, integrate in order, retarget/rebase dependents and rerun checks.
 
 Exit: current reviewed head is green and mergeable; no protection bypass.

@@ -1,11 +1,41 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "project_label": null,
   "client": null,
-  "stage": "local",
+  "stage": "ideation",
   "updated_at": null,
   "canonical_issue": null,
   "temporary_intake": null,
+  "ideation": {
+    "status": "pending",
+    "outcome": null,
+    "first_slice": null,
+    "workload": null,
+    "performance_targets": null,
+    "security_constraints": [],
+    "feasibility": {
+      "status": "pending",
+      "decision": null,
+      "risks": [],
+      "dependencies": [],
+      "complexity_drivers": [],
+      "development_constraints": null,
+      "next_experiment": null
+    },
+    "ai_feasibility": null,
+    "cost_estimate": null,
+    "assumptions": [],
+    "accepted_tradeoffs": [],
+    "next_question": null
+  },
+  "stack": {
+    "recommended_profile": "cloudflare",
+    "selected_profile": null,
+    "services": [],
+    "required_providers": [],
+    "exclusions": [],
+    "upgrade_triggers": []
+  },
   "providers": {
     "github": {
       "status": "pending",

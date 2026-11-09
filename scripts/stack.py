@@ -14,6 +14,8 @@ ROOT = Path(__file__).resolve().parents[1]
 NAME = "build-my-app"
 CLIENTS = ("codex", "claude-code", "cursor", "hermes")
 PROVIDER_NAMES = ("github", "neon", "railway", "cloudflare", "resend")
+DEFAULT_PROVIDERS = ("cloudflare",)
+PROFILES = ("cloudflare", "container")
 # Security allowlist, intentionally independent of editable provider metadata.
 # Changing an endpoint requires reviewing both the source and this policy.
 OFFICIAL_MCP_URLS = {
@@ -42,7 +44,7 @@ def render_config(client, providers=None, railway_transport="http"):
     """Return a fragment only. Never resolve credentials or change client files."""
     if client not in CLIENTS or railway_transport not in ("http", "stdio"):
         raise ValueError("Unsupported client or transport")
-    names = list(PROVIDER_NAMES if providers is None else providers)
+    names = list(DEFAULT_PROVIDERS if providers is None else providers)
     if not names or len(names) != len(set(names)) or any(n not in PROVIDER_NAMES for n in names):
         raise ValueError("Select unique, supported providers")
     entries = {}
@@ -100,40 +102,50 @@ def probe(command, timeout=10):
     return ("ok", result.stdout) if result.returncode == 0 else ("failed", "")
 
 
-def doctor(stage="local", runner=probe, system=None):
-    """Check only prerequisites; local readiness never requires a provider login."""
+def doctor(stage="local", runner=probe, system=None, profile="cloudflare"):
+    """Check selected prerequisites only; never log in or download project tools."""
     if stage not in ("local", "publish"):
         raise ValueError("Unknown stage")
+    if profile not in PROFILES:
+        raise ValueError("Unknown profile")
     system = system or platform.system()
     checks = []
-    for name in ("git", "podman", "gh", "railway", "podman-compose"):
-        required = name in ("git", "podman") or (stage == "publish" and name == "gh")
+    required_names = ("git", "node") if profile == "cloudflare" else ("git", "podman")
+    optional_names = ("wrangler", "gh") if profile == "cloudflare" else ("gh", "railway", "podman-compose")
+    for name in (*required_names, *optional_names):
+        required = name in required_names
         status, output = runner([name, "--version"], timeout=10)
-        version = re.search(r"\b\d+\.\d+(?:\.\d+)?\b", output) if status == "ok" else None
+        version = re.search(r"\bv?(\d+\.\d+(?:\.\d+)?)\b", output) if status == "ok" else None
         checks.append({"check": name, "required": required, "status": status,
-                       "version": version.group(0) if version else None})
-    status, output = runner(["podman", "info", "--format", "json"], timeout=15)
-    rootless = None
-    if status == "ok":
-        try:
-            info = json.loads(output)
-            rootless = info["host"]["security"]["rootless"]
-            if not isinstance(rootless, bool):
-                raise ValueError("Invalid rootless field")
-        except (ValueError, TypeError, KeyError):
-            status = "invalid_response"
-        if status == "ok" and system == "Linux" and rootless is not True:
-            status = "rootful_not_approved"
-    checks.append({"check": "podman-runtime", "required": True, "status": status,
-                   "rootless": rootless if isinstance(rootless, bool) else None})
+                       "version": version.group(1) if version else None})
+    if profile == "container":
+        status, output = runner(["podman", "info", "--format", "json"], timeout=15)
+        rootless = None
+        if status == "ok":
+            try:
+                info = json.loads(output)
+                rootless = info["host"]["security"]["rootless"]
+                if not isinstance(rootless, bool):
+                    raise ValueError("Invalid rootless field")
+            except (ValueError, TypeError, KeyError):
+                status = "invalid_response"
+            if status == "ok" and system == "Linux" and rootless is not True:
+                status = "rootful_not_approved"
+        checks.append({"check": "podman-runtime", "required": True, "status": status,
+                       "rootless": rootless if isinstance(rootless, bool) else None})
     ready = all(c["status"] == "ok" for c in checks if c["required"])
-    if ready:
+    if profile == "cloudflare":
+        next_action = ("Verify project-local Wrangler, supported Node version, framework and local-only bindings; "
+                       "run the actual application/tests. Provider authentication remains separate.")
+        if not ready:
+            next_action = "Resolve missing Git/Node prerequisites, then verify project-local Wrangler and local-only bindings."
+    elif ready:
         next_action = "Verify project runtime and run the actual local application/tests; connect providers separately."
     elif system in ("Darwin", "Windows"):
         next_action = "Inspect missing prerequisites and podman machine list; obtain approval before initializing/starting a machine."
     else:
         next_action = "Resolve missing/unready prerequisites; verify rootless Podman before container work."
-    return {"stage": stage, "system": system, "ready": ready,
+    return {"stage": stage, "profile": profile, "system": system, "ready": ready,
             "scope": "prerequisites_only", "checks": checks,
             "provider_authentication": "not_tested", "application_health": "not_tested",
             "next_action": next_action}
@@ -148,13 +160,15 @@ def package_path(relative):
         raise ValueError("Unsafe package path")
     reserved = {"con", "prn", "aux", "nul", *("com" + str(n) for n in range(1, 10)),
                 *("lpt" + str(n) for n in range(1, 10))}
-    private_dirs = {".git", "__pycache__", ".venv", "node_modules", "dist", ".local-first",
+    private_dirs = {".git", "__pycache__", ".venv", "node_modules", "dist", ".wrangler", ".local-first",
                     ".build-my-app", ".codex", ".claude", ".cursor", ".hermes"}
     for part in path.parts:
         lower = part.lower()
         if not re.fullmatch(r"[A-Za-z0-9_.-]+", part) or part.endswith(".") or lower.split(".")[0] in reserved:
             raise ValueError("Non-portable package path")
-        if lower in private_dirs or (lower == ".env" or lower.startswith(".env.")) and lower != ".env.example":
+        if (lower in private_dirs
+                or (lower == ".env" or lower.startswith(".env.")) and lower != ".env.example"
+                or (lower == ".dev.vars" or lower.startswith(".dev.vars.")) and lower != ".dev.vars.example"):
             raise ValueError("Private/generated paths cannot be distributed")
     if path.suffix.lower() in {".pyc", ".pyo", ".pem", ".key", ".bak", ".zip"}:
         raise ValueError("Private/generated files cannot be distributed")
@@ -259,9 +273,12 @@ def main(argv=None):
     commands = parser.add_subparsers(dest="command", required=True)
     diag = commands.add_parser("doctor", help="Noninteractive prerequisite probes only")
     diag.add_argument("--stage", choices=("local", "publish"), default="local")
+    diag.add_argument("--profile", choices=PROFILES, default="cloudflare",
+                      help="Cloudflare baseline (default), or explicitly selected container runtime")
     config = commands.add_parser("mcp-config", help="Print a secret-free fragment; never apply it")
     config.add_argument("--client", choices=CLIENTS, required=True)
-    config.add_argument("--providers", nargs="+", choices=PROVIDER_NAMES)
+    config.add_argument("--providers", nargs="+", choices=PROVIDER_NAMES,
+                        help="Selected connections only; defaults to Cloudflare")
     config.add_argument("--railway-transport", choices=("http", "stdio"), default="http")
     copy = commands.add_parser("install", help="Copy allowlisted skill files only with --apply")
     copy.add_argument("--destination", required=True)
@@ -272,7 +289,7 @@ def main(argv=None):
             print(render_config(args.client, args.providers, args.railway_transport), end="")
             return 0
         if args.command == "doctor":
-            report = doctor(args.stage)
+            report = doctor(args.stage, profile=args.profile)
             print(json.dumps(report, indent=2))
             return 0 if report["ready"] else 1
         print(json.dumps(install(args.destination, args.apply), indent=2))

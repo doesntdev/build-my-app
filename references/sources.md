@@ -4,6 +4,24 @@ Documentation reviewed on 2026-09-16. Re-read the relevant source at setup/relea
 time; provider behavior and client configuration can change. The registry's
 `reviewed_on` is a documentation-review date, not proof of live OAuth or deployment.
 
+The Cloudflare-first and AI-economics references were reviewed on 2026-11-09;
+this does not refresh the older endpoint/auth review or certify live integration.
+
+| Stack/feasibility area | Source |
+| --- | --- |
+| Workers app and assets | https://developers.cloudflare.com/workers/static-assets/ |
+| Workers local bindings | https://developers.cloudflare.com/workers/local-development/ |
+| Workers limits and pricing | https://developers.cloudflare.com/workers/platform/limits/ and https://developers.cloudflare.com/workers/platform/pricing/ |
+| D1 local SQLite | https://developers.cloudflare.com/d1/best-practices/local-development/ |
+| D1 limits and pricing | https://developers.cloudflare.com/d1/platform/limits/ and https://developers.cloudflare.com/d1/platform/pricing/ |
+| R2 pricing | https://developers.cloudflare.com/r2/pricing/ |
+| Workflows limits | https://developers.cloudflare.com/workflows/reference/limits/ |
+| Workers AI model prices | https://developers.cloudflare.com/workers-ai/platform/pricing/ |
+| OpenAI API prices | https://developers.openai.com/api/docs/pricing |
+
+For each AI estimate also retrieve the selected model's current context/output,
+rate and data-handling documentation; a price table is not capability evidence.
+
 | Area | Source |
 | --- | --- |
 | Skill format | https://agentskills.io/specification |

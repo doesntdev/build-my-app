@@ -1,4 +1,86 @@
-# Build My App 0.1.1 — validation record
+# Build My App — validation record
+
+## 0.2.0 — general application feasibility refinement
+
+This refines the same unpublished local candidate on 2026-11-09. General
+application and development feasibility now drives ideation; AI is one optional
+specialist branch. No new helper runtime or provider behavior was introduced.
+
+| Check | Observed result |
+| --- | --- |
+| Manifest-only installation | 41 allowlisted files; dry run, apply, identical rerun and exact source-byte parity passed |
+| Installed package validator | Valid on Python 3.14.9 and 3.11.15 |
+| Installed offline unittest suite | 75 tests passed on each interpreter |
+| New general-feasibility contracts | Non-AI risk coverage, conditional AI loading, unresolved-risk state and non-AI scenarios covered; missing contracts observed failing before edits |
+| AI reference extraction | Existing specialist questions, numerical example and dated sources preserved byte-for-byte; SHA-256 of the relocated section is `934bfc7afbc5c6c1f324c62e140ef13e9f9e6f3a1bec369655da1af967cc5fce` |
+| Existing installation safety | Customized SKILL.md refused without overwriting it |
+| Artifact lifecycle | Qualification directories removed; no new project bytecode/build cache retained; existing graph kept |
+
+The current tested source-core SHA-256 is
+`cf257c308ee8b35b4397b1fbcd8c4beffd22e43569078a9b630f041cf8d3441d`,
+using the sorted manifest-path/NUL/file-digest procedure described below and
+excluding this validation record. Revalidate this record-only update afterward.
+
+The entrypoint, general ideation guide, onboarding, platform selection, SDLC,
+charter/state, release evidence and README now share the general feature-risk
+loop. Non-AI scenario rubrics include offline conflicts, concurrent booking and
+payment, inaccessible integrations, large uploads, CPU-heavy reports, constrained
+solo delivery, sensitive multi-user records and delivery/relevance quality.
+They received instruction-level review, not live model-behavior or application
+execution. The earlier tabletop examples below remain historical; they are not
+new behavioral proof for this refinement. Deterministic text checks cannot certify
+future agent reasoning, legal compliance or a generated app's real-world feasibility.
+
+At this qualification checkpoint, source changes were local/uncommitted. No push,
+active-client installation, cloud resource, paid inference, live OAuth or GitHub
+Actions run was part of these checks. Subsequent source publication is a separate,
+owner-authorized operation recorded in Git history.
+
+## 0.2.0 — earlier Cloudflare-first candidate qualification
+
+The following receipt predates the general-feasibility refinement above.
+
+Local qualification performed on 2026-11-09. The source update is local and
+uncommitted; no source publication, release, active-client installation, cloud
+mutation or paid inference is implied.
+
+| Check | Observed result |
+| --- | --- |
+| Manifest-only installation | 40 allowlisted files; dry run, apply, identical rerun and byte/hash parity passed |
+| Installed `python scripts/verify.py` | Valid on Python 3.14.9 and 3.11.15; no structure, syntax, link, endpoint or privacy errors |
+| Installed `python -m unittest discover -s tests -q` | 71 tests passed on each of Python 3.14.9 and 3.11.15 |
+| Customized-install refusal | Differing SKILL.md refused without overwriting the local fixture |
+| Cloudflare prerequisite doctor | Passed Git/Node availability; Node 24.15.0; global Wrangler absent and explicitly optional, project tooling/auth/app not tested |
+| Container prerequisite doctor | Passed with rootless Podman; no new Postgres container started |
+| Full-provider config paths | Four clients, HTTP/stdio parsing, explicit selections and existing secret/approval controls covered by the offline suite |
+| Cloudflare private-state boundaries | `.dev.vars` and `.wrangler` rejected as package inputs; application Git/build exclusions covered |
+| Independent read-only source review | Core behavior supported; one leftover Neon-specific rehearsal instruction identified |
+| Review repair | Parent verified the finding, made Postgres rehearsal use the selected platform and added a regression; final suite rerun |
+| Tabletop behavior examples | Static portfolio omits unused services; book-generator fixture explains budget mismatch first; unchanged existing Postgres/Railway fix preserves its stack |
+| Book-example arithmetic | Calculated with Decimal; repeated input, two text passes and retry reserve included; dated official price sources linked in ideation |
+| Temporary installation cleanup | Owned qualification directories removed; no active client or provider configuration changed |
+| Existing source controls | Workflow, provider endpoint registry, license/attribution and Compose template unchanged |
+
+The tested source core is SHA-256
+`43843f626de60aa2d537f1ad75b351a23708ca57c7b81c07e3dcec80d1ab79d2`:
+sort MANIFEST paths except this validation record, then hash the concatenation
+of UTF-8 relative path, NUL and SHA-256 digest bytes of each file. The record-only
+update is checked afterward with the strict package validator.
+
+The developer checkout's direct validator initially rejected its existing,
+unallowlisted `graphify-out` artifacts. This is an intentional distribution
+boundary, not a package failure or permission to delete the graph. Qualification
+used the manifest-only installed package; no validator exclusions were weakened.
+The narrowed helper contracts were observed failing before implementation.
+
+Behavior examples are tabletop responses from an isolated review, not a benchmark
+of model reliability. No end-to-end generated Cloudflare application, live OAuth,
+hosted capacity, model quality/latency, real book generation, actual invoice or
+production deployment was validated. The worked costs are explicit planning
+assumptions, not measured usage. No GitHub Actions were queried or run for this
+update; the previous package workflow was left unchanged.
+
+## 0.1.1 — historical validation
 
 Local checks performed on 2026-09-16 before the first public release. This is
 bounded evidence, not certification of every client, provider, operating system,

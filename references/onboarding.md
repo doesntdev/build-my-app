@@ -8,20 +8,29 @@ then execute. Explain a new service in one sentence before asking for consent.
 Never ask the user to install five things manually when the agent can safely do
 that work with an approved package manager and verified commands.
 
-First-time questions, only when unanswered:
+## Stage 0 — agreed idea and stack
 
-1. What should the first useful user workflow accomplish?
-2. Existing project or new folder; preferred framework if there is no code yet?
-3. Local-only for now or prepare to publish? If publishing: account/organization,
-   budget ceiling, owned domain, public/private source, release owner?
-4. Any sensitive data, multi-user/tenant access, regulatory or regional requirements?
+Run [ideation](ideation.md) first; reuse its answers instead of duplicating the
+interview here. Confirm outcome, workload, technical/scaling/security constraints,
+complexity, integrations, development/support burden, cost assumptions and material
+risks/trade-offs. Capture a build/prove-first/reshape/defer recommendation for
+the affected features. Use [stack selection](stack-selection.md)
+to record services needed now, exclusions and upgrade triggers. Do not begin five
+OAuth flows before discovering whether the project needs those services.
+
+Then ask only remaining setup questions: existing repo or new folder, selected
+runtime, local-only or publish, account/organization and release owner, source
+visibility, budget authorization, and domain/email only when actually needed.
+An owned custom domain is not necessary for a local app or every Workers preview.
 
 Choose low-risk defaults visibly: private repo, loopback local ports, capture mail,
 non-production data, modular monolith. Do not invent account IDs or a budget.
 
 ## Stage A — local proof
 
-Inspect runtime, Git, Podman and the repository. Use the local doctor. Recommend
+Inspect the selected runtime, Git and repository. The default local doctor checks
+the Cloudflare Git/Node profile, not app health, project-local Wrangler or auth.
+Use `--profile container` only when container dependencies are selected. Recommend
 current official installation steps only for missing prerequisites; installing
 software, starting a VM, or enabling services requires user scope/consent.
 Build a local vertical slice and prove its real behavior. If GitHub is not yet
@@ -37,11 +46,15 @@ Resolve the active client and profile. Inspect server metadata without dumping
 config values or secret files. Include plugin/project/global sources to avoid
 duplicates. Reuse a matching official server rather than reauthenticating blindly.
 
-Show a table for GitHub, Neon, Railway, Cloudflare, and Resend. Each row has:
+Show a table for selected/considered providers, using Cloudflare as the minimum
+runtime recommendation and GitHub for tracking when available. Neon, Railway,
+Resend and a model API are conditional additions, not setup requirements.
+Each row has:
 needed now / deferred / not applicable; account scope; configured; connected;
 authorized; scoped; write gate; next action. `not applicable` needs a reason
-(e.g. no email feature). The full publishing path offers all five connections;
-no silently skipped server and no false claim that deferred equals verified.
+(e.g. no email feature). Connect all five only if requested or justified by the
+accepted design; otherwise record exclusions without nagging for unused logins.
+There is no false claim that deferred equals verified.
 
 ## Stage C — connect one provider
 
@@ -79,6 +92,16 @@ others. Include timestamp, client, provider, intended environment, safe evidence
 summary, fallback, blocker, and next action. Never save tokens, login URLs,
 callback codes, environment dumps, private customer data, or connection strings.
 Account/resource labels may still be sensitive: keep this record local by default.
+
+For a schema-1 record, preserve all existing provider evidence and add the schema-2
+ideation/stack fields as unknown/pending. Do not infer acceptance or a selected
+stack from the old template's provider list. Fill them through reconciliation,
+not by resetting onboarding or silently migrating the application.
+
+Existing schema-2 records may lack the additive general `ideation.feasibility`
+fields. Preserve provider evidence and prior AI findings; add missing general
+fields as pending/unknown. An AI review or successful login does not establish
+overall application feasibility, and missing fields do not justify restarting setup.
 
 On resume, recheck the workspace, identity, target environment, config, current
 permissions, and recent remote changes. Reuse valid evidence; stale evidence does

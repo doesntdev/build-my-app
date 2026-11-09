@@ -2,8 +2,10 @@
 
 ## Before provisioning
 
-Confirm chosen accounts, repository owner/visibility, region, environment,
-owned domain, controlled email recipient, budget ceiling, and release authority.
+Reconcile the accepted ideation and selected stack first; a new AI/data/usage
+assumption reopens its feasibility review. Confirm needed accounts, repository
+owner/visibility, region, environment, budget ceiling and release authority.
+Require an owned domain or controlled email recipient only for features using them.
 Read current plan/pricing/quotas; do not promise a permanently free stack. Never
 buy a domain, upgrade a plan, create billable services, expose a private repo,
 or send real mail without bounded authorization. Read back every external write.
@@ -14,67 +16,77 @@ first, or get explicit approval for additional vendors. No hidden sixth SaaS.
 
 ## Dependency-ordered bootstrap
 
-1. **GitHub:** approved repo visibility, canonical issue, protected default branch,
-   CI checks and minimal environment-scoped secrets. Private is the default unless
-   public source is requested. Verify permissions and rule availability.
-2. **Neon:** sanitized development/staging and isolated production, compatible
-   PostgreSQL major/region, least-privilege runtime/migration identities, committed
-   migrations, verified recovery coverage. Obtain secret URLs through protected
-   channels without returning them to chat. Production is outside Neon MCP.
-3. **Railway:** separate environments/services for web and worker if needed,
-   explicit deploy source, `PORT`, health checks, environment secret injection,
-   restart/shutdown behavior, logs and resource/budget limits. Use Neon for data.
-4. **Cloudflare:** read exact Railway hostname/verification requirements, create
-   only intended records, verify proxied HTTPS and origin protection. Never guess
-   CNAME values, bypass requirements, apex support, or current certificate state.
-5. **Resend:** if the app sends mail, verify a user-owned sending domain/subdomain
-   using exact Resend DNS values, set runtime key/sender and signed webhook,
-   verify controlled provider test behavior. Real recipient testing is approved.
+1. **Source/work:** approved repository visibility, canonical issue, applicable
+   checks/reviews and actual destination controls. Private is the default unless
+   public source is requested; preserve the repository's selected release lane.
+2. **Cloudflare minimum:** intended account, scoped deployment identity and
+   isolated staging/production Worker configuration. Add separate D1 databases
+   and private R2 buckets only if needed. Inspect every effective binding, route,
+   secret name and remote flag: separate Worker names alone do not isolate data.
+3. **Optional managed capabilities:** selected Workflows/Queues/Durable Objects
+   or AI need environment separation, permissions, concurrency/retry limits,
+   error visibility and reviewed cost controls. Qualify real model quality and
+   metering only through a bounded approved experiment, never ordinary unit tests.
+4. **Optional Postgres/runtime:** Neon requires sanitized non-production and
+   isolated production, committed migrations and verified recovery. Production
+   stays outside Neon MCP. Railway is needed only for its selected runtime/worker,
+   with explicit source/branch, health/shutdown, secret injection and resource
+   limits. Workers + Neon does not require a Railway service.
+5. **Optional domain/mail:** read exact provider hostnames/verification values;
+   change only intended DNS records, preserve mail records, and verify TLS and
+   access controls. For Resend, verify sending domain, runtime sender/key and
+   signed webhook; use controlled test recipients with permission.
 
-For an app without email or uploads, defer Resend/R2 and record why. Offer the MCP
-setup but do not create unused billable infrastructure just to tick a box.
+Record omitted providers as not applicable/deferred with reasons. Do not create
+unused infrastructure, demand five MCP connections or invent a domain to publish.
 
 ## Choose and prove one artifact path
 
-### Preferred: immutable OCI promotion
+### Default: Cloudflare Worker and assets
 
-Build the production `Containerfile` with Podman in CI, push to GHCR under an
-approved visibility, capture the immutable digest, target architecture, scan/SBOM
-and provenance evidence. Deploy that exact digest to staging and production where
-Railway's current image source supports it. Verify private-registry plan support
-and a scoped read credential before adopting this path. If CI cannot run Podman,
-use a supported runner or document the blocker rather than sneaking in a Docker
-daemon. Do not publish private application images publicly to bypass pull auth.
+Pin the source, lockfile, compatibility date/flags, build command and approved
+Wrangler/provider tool version. Build/test the actual Workers output and asset
+manifest locally, then deploy through the chosen authorized source/deployment
+lane. Read back the Worker version/deployment, routes/custom domains, asset and
+binding identity for the target environment. A successful upload is not acceptance.
 
-Test the final artifact, not only the pre-merge code. If merge/rebase changes the
-candidate, build once again and restage that **new final artifact** before promotion.
-Verify Railway's source resolves to the intended digest, not just a mutable tag.
+Stage the final candidate. If integration changes source/configuration, qualify
+the changed result before promotion. Record whether production reuses a qualified
+version or rebuilds from the same source; do not claim byte-identical promotion
+without evidence. Worker code rollback does not roll back D1 data, R2 objects,
+secrets or every binding/resource change. Rehearse recovery for that whole closure.
 
-### Explicit alternative: Railway GitHub source build
+### Selected container extension: branch-triggered source build
 
-Enable and verify **Wait for CI** for the intended branch, including a push CI
-workflow on that branch. Set the remote builder's custom Containerfile path
-(`RAILWAY_DOCKERFILE_PATH=Containerfile` or current config-as-code equivalent),
-and equivalent `.dockerignore` exclusions for secrets. Verify builder selection
-in actual logs. A local `.containerignore` is not proof of remote exclusion.
+Use the repository's configured Git-linked Railway release branch, normally
+`staging` for staging and `main` for production, with required local/deploy-time
+checks. Merge through the authorized lane; observe the branch-triggered deployment.
+Do not manually deploy/redeploy, pin a commit/image or bypass failed source gates.
+Verify the builder's Containerfile path (current Railway config), target architecture
+and `.dockerignore` exclusions in actual logs. `.containerignore` alone does not
+prove remote secret exclusion and its compatibility filename needs no Docker daemon.
 
-Record the exact source commit and Railway build/deployment ID. Railway rebuilds
-from source: this is **not** promotion of the Podman/GHCR digest. Stage and validate
-the resulting Railway artifact; document the weaker reproducibility/rebuild
-boundary and rollback method. Do not label a newly rebuilt production artifact
-“the identical tested image” without provider evidence.
+Record exact source and build/deployment identity; test the actual result. A
+Railway source rebuild is not promotion of a locally tested OCI digest. OCI image
+publication is a separate explicit choice requiring registry visibility, immutable
+digest, platform and supported pull credentials; never publish a private image
+publicly to bypass auth or manually deploy it to evade the branch lane.
 
 ## Migrations and release gates
 
 Use committed migrations and expand/contract compatibility. Apply expand changes
 before dependent code; delay drops until old code and backfills are retired.
-Use direct/session connections if the migration runner needs them. Rehearse from
-empty schema and from sanitized prior schema on a disposable Neon branch. Verify
-PITR/backup coverage and perform a restore rehearsal before destructive operations.
+For D1, rehearse committed SQLite-compatible migrations against local D1 from
+empty/prior state, then an isolated remote staging database. Confirm effective
+environment/database identity before explicit remote mutations; verify the current
+recovery/Time Travel plan and restore procedure. For selected Postgres, use the
+needed direct/session migration connection and an isolated sanitized rehearsal
+database on the selected data platform; use a Neon branch only when Neon is selected.
+Verify recovery coverage and restore before destructive operations in either path.
 Make migration locking/concurrency explicit; no multiple replicas racing migrations.
 
 Write the release record from `templates/release-evidence.md`: candidate identity,
-CI/review, migration order, config/secret names, staging evidence, owner/approval,
+verification/review, migration order, config/secret names, staging evidence, owner/approval,
 rollback/forward-fix, monitoring and acceptance. Secrets themselves stay in approved
 provider secret stores. CI does not depend on interactive MCP OAuth credentials.
 
@@ -89,9 +101,12 @@ read back the exact record/service/deployment/branch. Then check:
 - actual migration version and compatibility;
 - worker backlog/lag, retries and dead letters when applicable;
 - DNS, valid HTTPS, proxy/Access/WAF behavior, webhook reachability;
-- direct-origin bypass attempt and the resulting control or disclosed limitation;
+- alternate Worker preview/`workers.dev` route and R2 public-access bypass attempts;
+- direct-origin protection if an external origin such as Railway is selected;
 - Resend message/event state when mail changed, not just API acceptance;
 - redacted logs, errors, latency, resource spend during a defined observation window.
+- AI quality, observed tokens/charges versus estimates and server-side user/job/global
+  quotas, retry/concurrency limits, atomic spend admission and failure behavior if used.
 
 A provider dashboard green light or health 200 is insufficient. Report the real
 user flow and remaining uncertainty. Do not use production test accounts that

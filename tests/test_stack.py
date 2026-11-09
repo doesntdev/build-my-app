@@ -19,7 +19,7 @@ class ConfigTests(unittest.TestCase):
         for client in stack.CLIENTS:
             for transport in ("http", "stdio"):
                 with self.subTest(client=client, transport=transport):
-                    text = stack.render_config(client, railway_transport=transport)
+                    text = stack.render_config(client, stack.PROVIDER_NAMES, railway_transport=transport)
                     value = tomllib.loads(text) if client == "codex" else json.loads(text)
                     key = "mcp_servers" if client in ("codex", "hermes") else "mcpServers"
                     servers = value[key]
@@ -32,7 +32,7 @@ class ConfigTests(unittest.TestCase):
                         self.assertEqual(servers["railway"]["url"], "https://mcp.railway.com")
 
     def test_exact_provider_urls(self):
-        result = json.loads(stack.render_config("claude-code"))["mcpServers"]
+        result = json.loads(stack.render_config("claude-code", stack.PROVIDER_NAMES))["mcpServers"]
         expected = {
             "github": "https://api.githubcopilot.com/mcp/",
             "neon": "https://mcp.neon.tech/mcp",
@@ -48,13 +48,13 @@ class ConfigTests(unittest.TestCase):
             self.assertEqual(list(value["mcpServers"]), [provider])
 
     def test_claude_explicit_transport(self):
-        value = json.loads(stack.render_config("claude-code"))["mcpServers"]
+        value = json.loads(stack.render_config("claude-code", stack.PROVIDER_NAMES))["mcpServers"]
         self.assertTrue(all(s["type"] == "http" for s in value.values()))
 
     def test_client_specific_secret_references(self):
-        claude = json.loads(stack.render_config("claude-code"))["mcpServers"]["github"]
-        cursor = json.loads(stack.render_config("cursor"))["mcpServers"]["github"]
-        codex = tomllib.loads(stack.render_config("codex"))["mcp_servers"]["github"]
+        claude = json.loads(stack.render_config("claude-code", ["github"]))["mcpServers"]["github"]
+        cursor = json.loads(stack.render_config("cursor", ["github"]))["mcpServers"]["github"]
+        codex = tomllib.loads(stack.render_config("codex", ["github"]))["mcp_servers"]["github"]
         self.assertEqual(claude["headers"]["Authorization"], "Bearer ${GITHUB_MCP_TOKEN}")
         self.assertEqual(cursor["headers"]["Authorization"], "Bearer ${env:GITHUB_MCP_TOKEN}")
         self.assertEqual(codex["bearer_token_env_var"], "GITHUB_MCP_TOKEN")
@@ -62,18 +62,18 @@ class ConfigTests(unittest.TestCase):
     def test_never_interpolates_environment(self):
         with patch.dict(os.environ, {"GITHUB_MCP_TOKEN": "private-test-sentinel-do-not-render"}):
             for client in stack.CLIENTS:
-                self.assertNotIn("private-test-sentinel", stack.render_config(client))
+                self.assertNotIn("private-test-sentinel", stack.render_config(client, stack.PROVIDER_NAMES))
 
     def test_github_readonly_in_every_client(self):
         for client in stack.CLIENTS:
-            text = stack.render_config(client)
+            text = stack.render_config(client, stack.PROVIDER_NAMES)
             value = tomllib.loads(text) if client == "codex" else json.loads(text)
             key = "mcp_servers" if client in ("codex", "hermes") else "mcpServers"
             header_key = "http_headers" if client == "codex" else "headers"
             self.assertEqual(value[key]["github"][header_key]["X-MCP-Readonly"], "true")
 
     def test_codex_approval_prompts(self):
-        value = tomllib.loads(stack.render_config("codex"))["mcp_servers"]
+        value = tomllib.loads(stack.render_config("codex", stack.PROVIDER_NAMES))["mcp_servers"]
         self.assertTrue(all(v["default_tools_approval_mode"] == "prompt" for v in value.values()))
 
     def test_codex_cli_documentation_gates_discovery_on_policy(self):
@@ -98,7 +98,7 @@ class ConfigTests(unittest.TestCase):
         self.assertEqual(github["bearer_token_env_var"], "GITHUB_MCP_TOKEN")
 
     def test_hermes_trust_and_sampling(self):
-        value = json.loads(stack.render_config("hermes"))["mcp_servers"]
+        value = json.loads(stack.render_config("hermes", stack.PROVIDER_NAMES))["mcp_servers"]
         for name, server in value.items():
             self.assertEqual(server["trust"], "untrusted")
             self.assertFalse(server["sampling"]["enabled"])
@@ -113,6 +113,22 @@ class ConfigTests(unittest.TestCase):
                 stack.render_config(*args, **kwargs)
 
 
+    def test_default_config_selects_only_cloudflare_for_every_client(self):
+        for client in stack.CLIENTS:
+            with self.subTest(client=client):
+                text = stack.render_config(client)
+                value = tomllib.loads(text) if client == "codex" else json.loads(text)
+                key = "mcp_servers" if client in ("codex", "hermes") else "mcpServers"
+                self.assertEqual(list(value[key]), ["cloudflare"])
+                self.assertNotIn("GITHUB_MCP_TOKEN", text)
+
+    def test_cli_default_config_selects_only_cloudflare(self):
+        result = subprocess.run([sys.executable, str(ROOT / "scripts/stack.py"),
+                                 "mcp-config", "--client", "hermes"],
+                                capture_output=True, text=True, check=True)
+        self.assertEqual(list(json.loads(result.stdout)["mcp_servers"]), ["cloudflare"])
+
+
 class DoctorTests(unittest.TestCase):
     @staticmethod
     def healthy(command, timeout=10):
@@ -125,7 +141,7 @@ class DoctorTests(unittest.TestCase):
             if command[0] in ("gh", "railway", "podman-compose"):
                 return "missing", ""
             return self.healthy(command, timeout)
-        report = stack.doctor("local", runner=run, system="Linux")
+        report = stack.doctor("local", runner=run, system="Linux", profile="container")
         self.assertTrue(report["ready"])
         self.assertEqual(report["provider_authentication"], "not_tested")
         self.assertEqual(report["application_health"], "not_tested")
@@ -134,29 +150,29 @@ class DoctorTests(unittest.TestCase):
         report = stack.doctor("local", runner=lambda *a, **k: ("missing", ""), system="Linux")
         self.assertFalse(report["ready"])
 
-    def test_publish_requires_gh(self):
+    def test_publish_does_not_require_optional_cli_when_mcp_can_be_used(self):
         def run(command, timeout=10):
             return ("missing", "") if command[0] == "gh" else self.healthy(command, timeout)
-        self.assertFalse(stack.doctor("publish", runner=run, system="Linux")["ready"])
+        self.assertTrue(stack.doctor("publish", runner=run, system="Linux")["ready"])
 
     def test_rootful_linux_not_approved(self):
         def run(command, timeout=10):
             if command[1:2] == ["info"]:
                 return "ok", '{"host":{"security":{"rootless":false}}}'
             return self.healthy(command, timeout)
-        self.assertFalse(stack.doctor("local", runner=run, system="Linux")["ready"])
+        self.assertFalse(stack.doctor("local", runner=run, system="Linux", profile="container")["ready"])
 
     def test_bad_podman_json_fails_safely(self):
         def run(command, timeout=10):
             return "ok", "not-json secret-sentinel"
-        report = stack.doctor("local", runner=run, system="Linux")
+        report = stack.doctor("local", runner=run, system="Linux", profile="container")
         self.assertFalse(report["ready"])
         self.assertNotIn("secret-sentinel", json.dumps(report))
 
     def test_wrong_podman_json_type_fails_safely(self):
         for value in ("[]", "null", '{"host":null}', '{"host":{"security":[]}}'):
             with self.subTest(value=value):
-                report = stack.doctor("local", runner=lambda *a, **k: ("ok", value), system="Linux")
+                report = stack.doctor("local", runner=lambda *a, **k: ("ok", value), system="Linux", profile="container")
                 self.assertFalse(report["ready"])
 
     def test_failed_probe_does_not_leak_output(self):
@@ -167,7 +183,7 @@ class DoctorTests(unittest.TestCase):
         def run(command, timeout=10):
             return ("failed", "") if command[1:2] == ["info"] else self.healthy(command, timeout)
         for system in ("Windows", "Darwin"):
-            report = stack.doctor("local", runner=run, system=system)
+            report = stack.doctor("local", runner=run, system=system, profile="container")
             self.assertFalse(report["ready"])
             self.assertIn("machine", report["next_action"])
 
@@ -181,8 +197,9 @@ class DoctorTests(unittest.TestCase):
         def run(command, timeout=10):
             calls.append(command)
             return self.healthy(command, timeout)
-        stack.doctor("publish", runner=run, system="Linux")
-        allowed = [[c, "--version"] for c in ("git", "podman", "gh", "railway", "podman-compose")]
+        for profile in ("cloudflare", "container"):
+            stack.doctor("publish", runner=run, system="Linux", profile=profile)
+        allowed = [[c, "--version"] for c in ("git", "node", "wrangler", "podman", "gh", "railway", "podman-compose")]
         allowed.append(["podman", "info", "--format", "json"])
         self.assertTrue(all(c in allowed for c in calls))
 
@@ -192,6 +209,49 @@ class DoctorTests(unittest.TestCase):
             self.assertEqual(stack.probe(["git", "--version"])[0], "ok")
             self.assertFalse(call.call_args.kwargs["shell"])
             self.assertGreater(call.call_args.kwargs["timeout"], 0)
+
+    def test_cloudflare_default_never_probes_container_or_optional_vendor_tools(self):
+        calls = []
+        def run(command, timeout=10):
+            calls.append(command)
+            if command[0] in ("git", "node"):
+                return "ok", "tool version 24.0.0"
+            return "missing", ""
+        report = stack.doctor(runner=run, system="Linux")
+        self.assertTrue(report["ready"])
+        self.assertEqual(report["profile"], "cloudflare")
+        self.assertEqual({c["check"] for c in report["checks"] if c["required"]}, {"git", "node"})
+        self.assertFalse(any(c[0] in ("podman", "podman-compose", "railway") for c in calls))
+        self.assertIn("project-local Wrangler", report["next_action"])
+
+    def test_cloudflare_needs_node_but_not_podman_on_all_platforms(self):
+        for system in ("Linux", "Darwin", "Windows"):
+            def run(command, timeout=10):
+                return ("missing", "") if command[0] == "node" else self.healthy(command, timeout)
+            with self.subTest(system=system):
+                report = stack.doctor(runner=run, system=system)
+                self.assertFalse(report["ready"])
+                self.assertNotIn("podman", report["next_action"].lower())
+
+    def test_node_v_prefix_preserves_the_full_version(self):
+        def run(command, timeout=10):
+            return ("ok", "v24.15.0\n") if command[0] == "node" else self.healthy(command, timeout)
+        report = stack.doctor(runner=run, system="Linux")
+        node = next(c for c in report["checks"] if c["check"] == "node")
+        self.assertEqual(node["version"], "24.15.0")
+
+    def test_invalid_doctor_profile_or_stage_rejected(self):
+        with self.assertRaises(ValueError):
+            stack.doctor(profile="unknown")
+        with self.assertRaises(ValueError):
+            stack.doctor(stage="unknown")
+
+    def test_doctor_cli_accepts_explicit_profiles(self):
+        for profile in ("cloudflare", "container"):
+            with self.subTest(profile=profile), patch("stack.doctor", return_value={"ready": True}) as check:
+                with patch("builtins.print"):
+                    self.assertEqual(stack.main(["doctor", "--profile", profile]), 0)
+                check.assert_called_once_with("local", profile=profile)
 
 
 class PackageTests(unittest.TestCase):
@@ -318,7 +378,7 @@ class PackageTests(unittest.TestCase):
             self.assertEqual(stack.install(target, apply=True)["status"], "unchanged")
 
     def test_private_or_generated_allowlist_rejected(self):
-        for bad in (".env", ".env.production", ".git/config", "__pycache__/x.pyc",
+        for bad in (".env", ".env.production", ".dev.vars", ".dev.vars.production", ".wrangler/state/db.sqlite", ".git/config", "__pycache__/x.pyc",
                     ".build-my-app/onboarding.json", "key.pem", "settings.bak", "dist/release.zip"):
             with self.subTest(bad=bad), tempfile.TemporaryDirectory() as tmp:
                 r = Path(tmp) / stack.NAME

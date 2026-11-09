@@ -5,11 +5,15 @@ client `--version` and `mcp --help` to verify flags. All examples carry endpoint
 URLs or secret **names**, not secret values. Render only the services being added:
 
 ```text
-python scripts/stack.py mcp-config --client codex --providers cloudflare neon
+python scripts/stack.py mcp-config --client codex --providers cloudflare
 ```
 
 Generated fragments are not merge tools or authorization enforcement. They must
 be reviewed, merged without duplicate server keys, and verified in the live host.
+Omitting `--providers` now renders Cloudflare only. Add `github`, `neon`, `railway`
+or `resend` explicitly when selected; the recipes below are alternatives, not a
+setup sequence requiring every server. An existing working client connection
+can be reused without rendering a second one.
 The GitHub fragment deliberately sets `X-MCP-Readonly: true`. Leave it during
 onboarding; routine issue/PR writes need a separately approved capability change
 or a scoped `gh` workflow. Do not use a read-only config as a reason to silently

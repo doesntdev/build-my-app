@@ -1,5 +1,11 @@
 # Application architecture defaults
 
+Use the agreed [ideation](ideation.md) and [stack recommendation](stack-selection.md).
+Start new compatible apps on Cloudflare Workers/Static Assets, D1 for relational
+state and private R2 for files only as needed. Preserve existing supported stacks.
+Neon/Postgres, Railway and extra Cloudflare services need explicit workload or
+security/capability justification; neither user count nor AI alone requires them.
+
 Choose the smallest complete vertical slice that satisfies product, security,
 data, latency and recovery constraints. Keep one repo, one authoritative domain
 implementation, and one deployable modular monolith; add a worker only for durable
@@ -19,20 +25,31 @@ by a client or model as authority.
 If the app is multi-user or organizational, make tenant/resource ownership explicit
 from the first business table. For multi-tenant data: non-null tenant scope,
 tenant-safe foreign keys/uniqueness/cache/object keys, server-verified membership,
-a permission catalog, and two-tenant allow/deny tests. Use PostgreSQL RLS as defense
-in depth where practical, testing owner/privileged bypass behavior. A genuinely
+a permission catalog, and two-tenant allow/deny tests. With Postgres, use RLS as
+defense in depth where practical, testing owner/privileged bypass behavior. D1 is
+SQLite-based and does not supply PostgreSQL RLS: scope application queries and
+test cross-user/tenant access explicitly. A genuinely
 single-user application may record that constraint instead of inventing tenants
 and RBAC bureaucracy. Reassess before adding shared data or additional users.
 
 ## Atomic state and durable side effects
 
 A command performs one authorized state transition in a database transaction.
+Use the selected database's actual atomic API and verify its semantics; do not
+copy a Postgres transaction client or `LISTEN/NOTIFY` into D1. D1 batch operations
+and supported consistency behavior need real local/runtime tests.
 Where the transition requires durable side effects, write its event intent to a
 transactional outbox in the **same transaction**. After commit, a worker delivers
 it with bounded attempts/backoff; consumers deduplicate with inbox/unique keys.
 Use stable idempotency scopes and request identity for retryable external commands.
 No claim of cross-process exactly-once delivery. External network calls do not
 belong inside the database transaction.
+
+For Cloudflare, use Workflows/Queues only when durable jobs or retries require
+them. A D1 commit and a Queue send are not one atomic transaction; preserve event
+intent and define recovery for a crash between them. Check per-step/job limits,
+duplicate deliveries, idempotency, bounded concurrency, cancellation and dead
+letters. Do not replace one durable-work requirement with an unbounded HTTP call.
 
 Default to event-driven triggers, webhooks and push updates instead of application
 poll loops. For a PostgreSQL outbox, use wake-up notifications where a verified

@@ -41,5 +41,88 @@ class DocumentationTests(unittest.TestCase):
         self.assertIn('  version: "' + manifest["version"] + '"', skill)
 
 
+class IdeationAndStackTests(unittest.TestCase):
+    def test_postgres_rehearsal_preserves_the_selected_data_platform(self):
+        text = (ROOT / "references/publishing.md").read_text(encoding="utf-8")
+        migrations = text.split("## Migrations and release gates", 1)[1].split("## Verify staging", 1)[0]
+        self.assertIn("selected data platform", migrations)
+        self.assertIn("only when Neon is selected", migrations)
+
+    def test_cloudflare_private_state_is_excluded_from_git_and_build_context(self):
+        for name in ("app.gitignore", "app.containerignore"):
+            text = (ROOT / "templates" / name).read_text(encoding="utf-8")
+            with self.subTest(name=name):
+                for private_path in (".dev.vars", ".dev.vars.*", ".wrangler"):
+                    self.assertIn(private_path, text)
+
+    def test_ideation_is_loaded_before_connection_setup(self):
+        text = (ROOT / "SKILL.md").read_text(encoding="utf-8")
+        self.assertLess(text.index("references/ideation.md"), text.index("references/onboarding.md"))
+        self.assertIn("On every invocation", text)
+        self.assertIn("before implementation or provider setup", text)
+
+    def test_minimum_and_escalation_guides_are_distributed(self):
+        manifest = json.loads((ROOT / "MANIFEST.json").read_text(encoding="utf-8"))
+        for path in ("references/ideation.md", "references/stack-selection.md", "references/ai-feasibility.md"):
+            self.assertIn(path, manifest["files"])
+            self.assertTrue((ROOT / path).is_file())
+            self.assertIn(path, (ROOT / "SKILL.md").read_text(encoding="utf-8"))
+
+    def test_llm_review_requires_economics_and_capability_checks(self):
+        text = (ROOT / "references/ai-feasibility.md").read_text(encoding="utf-8")
+        for contract in ("100,000-word", "input", "output", "retries", "revisions",
+                         "concurrency", "per-user", "monthly", "context window",
+                         "maximum output", "source", "checked", "unverified"):
+            with self.subTest(contract=contract):
+                self.assertIn(contract, text)
+
+    def test_general_feasibility_covers_non_ai_development_risks(self):
+        text = (ROOT / "references/ideation.md").read_text(encoding="utf-8")
+        for contract in ("Technical feasibility", "Scalability", "Security and privacy",
+                         "Complexity", "Integrations", "Correctness and reliability",
+                         "Development and delivery", "Operations", "Usability and accessibility"):
+            with self.subTest(contract=contract):
+                self.assertIn(contract, text)
+        self.assertLess(text.index("## Explain the consequence now"), text.index("## Ready to build"))
+
+    def test_ai_is_one_conditional_branch_of_the_general_review(self):
+        text = (ROOT / "references/ideation.md").read_text(encoding="utf-8")
+        self.assertIn("[AI feasibility](ai-feasibility.md)", text)
+        self.assertIn("not an exhaustive checklist", text)
+        self.assertNotIn("model_cost_per_job", text)
+        skill = (ROOT / "SKILL.md").read_text(encoding="utf-8")
+        self.assertIn("every meaningful feature", skill)
+        self.assertIn("complexity", skill)
+
+    def test_feasibility_records_unknown_risks_without_implying_acceptance(self):
+        record = json.loads((ROOT / "templates/onboarding-state.json").read_text(encoding="utf-8"))
+        review = record["ideation"]["feasibility"]
+        self.assertEqual(review["status"], "pending")
+        self.assertIsNone(review["decision"])
+        self.assertEqual(review["risks"], [])
+        self.assertEqual(review["dependencies"], [])
+        self.assertEqual(review["complexity_drivers"], [])
+        self.assertIsNone(review["next_experiment"])
+
+    def test_non_ai_scenarios_cover_delivery_and_data_failure_modes(self):
+        text = (ROOT / "tests/scenarios.md").read_text(encoding="utf-8")
+        for case in ("Offline inventory sync", "Last-seat booking", "Unavailable third-party API",
+                     "Large public uploads", "Solo weekend build"):
+            with self.subTest(case=case):
+                self.assertIn(case, text)
+
+    def test_onboarding_records_workload_and_stack_instead_of_assuming_five_providers(self):
+        record = json.loads((ROOT / "templates/onboarding-state.json").read_text(encoding="utf-8"))
+        self.assertEqual(record["stage"], "ideation")
+        self.assertEqual(record["ideation"]["status"], "pending")
+        self.assertIsNone(record["stack"]["selected_profile"])
+        self.assertEqual(record["stack"]["recommended_profile"], "cloudflare")
+        self.assertEqual(record["stack"]["required_providers"], [])
+        self.assertIsNone(record["ideation"]["cost_estimate"])
+        for provider in record["providers"].values():
+            self.assertFalse(provider["configured"])
+            self.assertFalse(provider["authorized"])
+
+
 if __name__ == "__main__":
     unittest.main()

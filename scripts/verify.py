@@ -9,7 +9,7 @@ import sys
 import tomllib
 from urllib.parse import unquote, urlsplit
 
-from stack import CLIENTS, NAME, ROOT, package_files, registry, render_config
+from stack import CLIENTS, NAME, PROVIDER_NAMES, ROOT, package_files, registry, render_config
 
 # These are leak indicators, not a comprehensive secret scanner.
 LEAKS = {
@@ -158,7 +158,7 @@ def validate(root=ROOT):
         for client in CLIENTS:
             for transport in ("http", "stdio"):
                 try:
-                    text = render_config(client, railway_transport=transport)
+                    text = render_config(client, PROVIDER_NAMES, railway_transport=transport)
                     tomllib.loads(text) if client == "codex" else json.loads(text)
                 except (ValueError, KeyError, TypeError):
                     errors.append(client + ": generated config parse failed")

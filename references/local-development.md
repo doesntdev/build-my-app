@@ -2,12 +2,44 @@
 
 ## Prerequisites and portability
 
-Use the chosen runtime/package manager, Git, and rootless Podman. Python 3.11+
+Use the chosen runtime/package manager and Git. Cloudflare uses Node plus a
+project-local Wrangler/workerd toolchain; rootless Podman is required only for a
+selected container/Postgres path. Python 3.11+
 is needed only for this skill's optional helpers. Discover live versions before
 recommending installation. Use official package/installer instructions with
 approval; never execute a fetched installer blindly.
 
-On Linux, check `podman info` reports rootless. On macOS/Windows inspect
+## Cloudflare minimum: no containers required
+
+1. Verify the project's pinned framework, Wrangler, Node support and package
+   scripts. Do not use package-manager execution that silently downloads a tool
+   during a read-only check. The helper doctor checks Git/Node availability only;
+   a missing global Wrangler may be fine when it is installed in the project.
+2. Use the verified local development script or project-local `wrangler dev` with
+   loopback binding. Inspect configuration for remote bindings and disable them
+   for the ordinary local loop; default-local is not proof that this config is safe.
+3. Use local D1 migrations/seeds and local R2 bindings only when selected. Pass
+   `--local` explicitly to D1 mutation commands. Never use production IDs/credentials
+   as an expedient local fixture or copy Postgres migrations unchanged into SQLite.
+4. Keep `.dev.vars`, `.env*` secrets and `.wrangler/` local state out of source.
+   Preserve the normal persisted local database/files; tests use unique owned
+   persistence directories. Delete only disposable test state, never normal user data.
+5. Exercise actual workerd/bindings, migrations from zero/upgrade state, persisted
+   data, authorization failures, file access and relevant browser/API flows. Capture
+   email and use deterministic LLM fixtures; real inference is separately approved.
+6. Verify the production Workers build/bundle with the project's installed tool,
+   then test the built local runtime. No Containerfile, Postgres or Railway login
+   is needed just to satisfy this workflow. Hosted quotas, global latency, OAuth,
+   real model quality/cost and remote service behavior still need separate proof.
+
+Use current [official local D1 guidance](https://developers.cloudflare.com/d1/best-practices/local-development/)
+and the pinned Wrangler help. Explain local simulation versus remote acceptance;
+never certify capacity or delivery from a mock or an HTTP 200 alone.
+
+## Container/Postgres extension: only when selected
+
+Run the helper with `--profile container`. On Linux, check `podman info` reports
+rootless. On macOS/Windows inspect
 `podman machine list`; initialize only if no suitable machine exists, and start
 only the intended machine with approval. Verify host reachability across the VM
 boundary. Windows uses PowerShell commands; a WSL-backed VM does not require the
@@ -27,12 +59,12 @@ the template, install/verify `podman-compose`, explicitly select it with
 native wrapper can set that environment on Linux/macOS/Windows without Bash-only
 scripts. `podman run` is the straightforward alternative for a single service.
 
-## Fast local loop
+### Fast container-path loop
 
 1. Run the application directly with its existing development/watch command.
 2. Use ignored `.env.local` (or runtime equivalent); tracked examples contain
    safe local defaults/names only. Never import production secrets.
-3. Start PostgreSQL under Podman and match the selected Neon PostgreSQL major.
+3. If Postgres is selected, start it under Podman and match the target PostgreSQL major.
    `templates/compose.local.yaml` starts at major 17 as a local baseline; update
    deliberately if the cloud target differs. Pin an approved patch/digest for
    releases. The template does not create a cloud database.
@@ -57,7 +89,7 @@ Expose the canonical start/test commands through the project's runtime scripts
 or a cross-platform script. Keep normal workflows independent of Make/Bash,
 absolute paths, user IDs, host networking, and container-engine sockets.
 
-## Production-parity loop
+### Container production-parity loop
 
 Build a minimal supported image with a non-root application user, pinned base,
 reproducible lockfile install, graceful shutdown, and injected `PORT` support.
@@ -97,7 +129,7 @@ an image tested only on ARM is not proof for an x86 deployment.
 
 ## Verification ladder
 
-Static checks → network-free unit tests → real isolated PostgreSQL integration →
-Podman image runtime smoke → browser/API acceptance → changed-provider integration →
-staging → production acceptance. Run every layer touched by the change, label
-inapplicable layers with reasons, and keep failures observable in CI.
+Static checks → network-free unit tests → real selected runtime/storage integration
+(workerd/local D1/R2 or isolated Postgres/Podman) → production-shaped build/runtime
+smoke → browser/API acceptance → changed-provider integration → staging → production.
+Run every relevant layer, label inapplicable ones with reasons, and preserve failures.

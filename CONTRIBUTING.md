@@ -19,6 +19,15 @@ python scripts/stack.py doctor --stage local
 The first two are deterministic and require no cloud credentials. The doctor is
 a live diagnostic: absent/unready prerequisites return exit 1 rather than a fake
 pass; its result is not app or provider authentication evidence.
+Doctor defaults to the Cloudflare Git/Node profile; use `--profile container` only
+for the container extension. It does not install or verify project-local Wrangler.
+The MCP generator now defaults to Cloudflare; preserve full explicit-provider
+and security-policy coverage when testing its narrower default.
+
+Validate a manifest-only installation when the developer checkout contains local
+graphs or other non-distributable files. The strict validator correctly refuses
+unallowlisted source-tree extras; do not weaken it or delete useful local state to
+manufacture PASS. Run the installed package's validator and complete offline suite.
 
 CI is configured for pull requests, pushes on any branch, and manual dispatch,
 with Linux/macOS/Windows and Python 3.11/3.14. It uses a read-only GitHub token,
@@ -42,7 +51,15 @@ Use `tests/scenarios.md` in an actual agent session for an instruction review.
 Record actions, evidence and violations. Deterministic helper tests cannot prove
 a model always follows a prompt. Never use real production writes to run an eval.
 
-When changing local container guidance, validate the Compose template with the
+When changing ideation/stack selection, review general application feasibility,
+scaling, security, complexity, correctness, dependencies, development effort,
+usability, cost and operations. Include non-AI cases such as offline sync, concurrent
+booking/payment, unavailable APIs, large uploads and a constrained solo build,
+as well as existing stacks, optional providers, resume and uncertain pricing.
+Load AI details only for an AI case. Check actual arithmetic; text assertions
+are regression guards, not behavioral proof or a substitute for targeted experiments.
+
+When changing container runtime commands/templates, validate the Compose template with the
 selected Podman provider and run a unique isolated PostgreSQL instance through
 readiness and a real query, then verify cleanup. Application Containerfiles and
 CI commands are project-specific and must be exercised when generated.
