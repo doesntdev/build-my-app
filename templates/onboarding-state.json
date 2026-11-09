@@ -1,11 +1,29 @@
 {
-  "schema_version": 2,
+  "schema_version": 3,
   "project_label": null,
   "client": null,
   "stage": "ideation",
   "updated_at": null,
-  "canonical_issue": null,
-  "temporary_intake": null,
+  "canonical_work_item": null,
+  "specification": {
+    "path": "spec.md",
+    "status": "draft",
+    "accepted_revision": null
+  },
+  "work_tracking": {
+    "provider": null,
+    "project_label": null,
+    "verified": false
+  },
+  "delivery": {
+    "work_base": "dev",
+    "integration_branch": "dev",
+    "staging_branch": "staging",
+    "production_branch": "main",
+    "review_mode": null,
+    "reviewers": [],
+    "cleanup_status": "pending"
+  },
   "ideation": {
     "status": "pending",
     "outcome": null,

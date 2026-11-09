@@ -2,6 +2,12 @@
 
 ## Before provisioning
 
+Follow [SDLC](sdlc.md): link the current `spec.md` revision/requirements and selected
+tracker work items; integrate reviewed work into dev, then use reviewed dev ->
+staging and staging -> main promotion PRs. Every PR needs current qualified review.
+Establish missing branch/environment bindings within authority before promotion;
+this document does not authorize a direct-to-main shortcut or new hosted CI.
+
 Reconcile the accepted ideation and selected stack first; a new AI/data/usage
 assumption reopens its feasibility review. Confirm needed accounts, repository
 owner/visibility, region, environment, budget ceiling and release authority.
@@ -16,9 +22,11 @@ first, or get explicit approval for additional vendors. No hidden sixth SaaS.
 
 ## Dependency-ordered bootstrap
 
-1. **Source/work:** approved repository visibility, canonical issue, applicable
-   checks/reviews and actual destination controls. Private is the default unless
-   public source is requested; preserve the repository's selected release lane.
+1. **Source/work:** approved repository visibility, canonical selected-tracker
+   work items and spec revision, reviewer mode, persistent dev/staging/main mapping,
+   applicable checks/reviews and actual destination controls. Private is the
+   default unless public source is requested; resolve conflicting existing branch
+   or deployment policy explicitly rather than bypassing it.
 2. **Cloudflare minimum:** intended account, scoped deployment identity and
    isolated staging/production Worker configuration. Add separate D1 databases
    and private R2 buckets only if needed. Inspect every effective binding, route,
@@ -46,8 +54,10 @@ unused infrastructure, demand five MCP connections or invent a domain to publish
 
 Pin the source, lockfile, compatibility date/flags, build command and approved
 Wrangler/provider tool version. Build/test the actual Workers output and asset
-manifest locally, then deploy through the chosen authorized source/deployment
-lane. Read back the Worker version/deployment, routes/custom domains, asset and
+manifest locally, then deploy through the authorized staging/main lane after
+the applicable reviewed promotion merge. Run comprehensive acceptance on the
+resulting staging revision and freshly on main; a prior branch's checks aren't
+post-merge proof. Read back the Worker version/deployment, routes/custom domains, asset and
 binding identity for the target environment. A successful upload is not acceptance.
 
 Stage the final candidate. If integration changes source/configuration, qualify

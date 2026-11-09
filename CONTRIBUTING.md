@@ -6,6 +6,13 @@ sources; never hardcode personal accounts, private URLs, machine paths or secret
 Preserve MIT attribution. Changes to endpoint/auth/authority policy need careful
 review, not only a text-match test.
 
+The dev/staging/main policy taught by the skill governs application delivery.
+Editing/publishing this instruction package does not itself adopt that branch
+policy in this repository, create integration branches/resources or change native
+rules. Package publication follows the owner's actual scope and repository controls.
+Use a work branch and record qualified review for package PRs; never infer a native
+self-approval or permission to publish from local tests.
+
 ## Required checks
 
 From the package directory with Python 3.11+:
@@ -29,11 +36,12 @@ graphs or other non-distributable files. The strict validator correctly refuses
 unallowlisted source-tree extras; do not weaken it or delete useful local state to
 manufacture PASS. Run the installed package's validator and complete offline suite.
 
-CI is configured for pull requests, pushes on any branch, and manual dispatch,
-with Linux/macOS/Windows and Python 3.11/3.14. It uses a read-only GitHub token,
-does not persist checkout credentials, and caps each job at ten minutes.
-Native Podman VM behavior and live client OAuth still require manual testing on
-the target host. Do not upgrade “syntax tested” into “fully integrated” in reports.
+Run package checks locally. Existing workflow assets remain prior repository
+content, not a new hosted-CI requirement or evidence of this candidate's acceptance.
+Do not query/dispatch hosted workflows for local qualification. Native destination
+controls still apply to authorized publication; resolve real conflicts explicitly.
+Native Podman VM behavior and live client OAuth require testing on the target host.
+Do not upgrade “syntax tested” into “fully integrated” in reports.
 
 The bundled validator is package-specific, not a general YAML or Agent Skills
 implementation. Its frontmatter subset supports single-line plain/JSON-quoted
@@ -59,10 +67,16 @@ as well as existing stacks, optional providers, resume and uncertain pricing.
 Load AI details only for an AI case. Check actual arithmetic; text assertions
 are regression guards, not behavioral proof or a substitute for targeted experiments.
 
+For SDLC edits, reconcile progressive spec creation, alternative tracker access,
+spec-to-ticket traceability, branch/promotion edges, team reviewer requests, solo
+self-review, review invalidation and safe merged-worktree/cache retirement. Cover
+blocked/dirty/unique-state paths as well as happy-path text markers. Package tests
+do not prove live provider/PR behavior or mechanically enforce the taught policy.
+
 When changing container runtime commands/templates, validate the Compose template with the
 selected Podman provider and run a unique isolated PostgreSQL instance through
 readiness and a real query, then verify cleanup. Application Containerfiles and
-CI commands are project-specific and must be exercised when generated.
+selected local/deploy commands are project-specific and must be exercised when generated.
 
 ## Release
 
@@ -77,7 +91,9 @@ CI commands are project-specific and must be exercised when generated.
    up and upgraded deliberately, not overwritten by this installer.
 5. Publish only after the owner approves the actual public repo and release.
    Never infer source visibility from deployment visibility.
-6. Verify the public files, CI, tag and release archive by reading them back.
+6. Read back exactly the authorized remote refs/files and any requested tag/release
+   archive. Source publication, release creation and active-client installation are
+   distinct operations; none follows automatically from local qualification.
 
 No silent auto-updater. A user can inspect a newer release/commit and ask their
 agent to review and apply it. Avoid requiring a particular maintainer account.

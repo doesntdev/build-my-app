@@ -13,8 +13,9 @@ that work with an approved package manager and verified commands.
 Run [ideation](ideation.md) first; reuse its answers instead of duplicating the
 interview here. Confirm outcome, workload, technical/scaling/security constraints,
 complexity, integrations, development/support burden, cost assumptions and material
-risks/trade-offs. Capture a build/prove-first/reshape/defer recommendation for
-the affected features. Use [stack selection](stack-selection.md)
+risks/trade-offs in the application's evolving root `spec.md`. Capture a
+build/prove-first/reshape/defer recommendation for the affected requirements.
+Use [stack selection](stack-selection.md)
 to record services needed now, exclusions and upgrade triggers. Do not begin five
 OAuth flows before discovering whether the project needs those services.
 
@@ -26,19 +27,35 @@ An owned custom domain is not necessary for a local app or every Workers preview
 Choose low-risk defaults visibly: private repo, loopback local ports, capture mail,
 non-production data, modular monolith. Do not invent account IDs or a budget.
 
-## Stage A — local proof
+## Before local proof — tracker, reviews and branches
+
+Select and verify the issue tracker/project; prefer the existing choice. Follow
+[SDLC](sdlc.md) to derive real work items from the accepted spec slice before
+implementation. If tracker login is missing, run Stage C for that connection now,
+using its supported native/API/CLI path, then return here; optional runtime-service
+setup can wait. Verify the intended account/project and actual required access.
+
+Determine team/solo review mode from actual contributors and destination policy,
+eligible named reviewers, and persistent dev/staging/main branch/deploy mapping.
+Verify review assignment/request capability without test mutations. Resolve missing
+branch setup under actual authority and start tracked work from dev; a hosted
+tracker is coordination, not an application runtime dependency.
+
+## Stage A — tracked local proof
 
 Inspect the selected runtime, Git and repository. The default local doctor checks
 the Cloudflare Git/Node profile, not app health, project-local Wrangler or auth.
 Use `--profile container` only when container dependencies are selected. Recommend
 current official installation steps only for missing prerequisites; installing
 software, starting a VM, or enabling services requires user scope/consent.
-Build a local vertical slice and prove its real behavior. If GitHub is not yet
-available, track this bootstrap in a temporary local intake file with acceptance
-and an explicit migration-to-issues step. This is a bootstrap exception, not a
-second durable backlog.
+Require a tracker-backed work item before implementation, including a local
+vertical slice or coding experiment. Use GitHub Issues or the user's selected
+real issue tracker and link accepted spec requirement IDs/revision. If tracking
+is unavailable, continue ideation and read-only discovery while resolving access;
+do not invent an issue or substitute a temporary text backlog. App runtime tests
+can remain cloud-independent even when coordination uses a remote tracker.
 
-Exit: runnable local app, deterministic tests, no required cloud credentials.
+Exit: tracked runnable local app, deterministic tests, no required runtime-provider credentials.
 
 ## Stage B — account and connection inventory
 
@@ -47,7 +64,7 @@ config values or secret files. Include plugin/project/global sources to avoid
 duplicates. Reuse a matching official server rather than reauthenticating blindly.
 
 Show a table for selected/considered providers, using Cloudflare as the minimum
-runtime recommendation and GitHub for tracking when available. Neon, Railway,
+runtime recommendation and GitHub or the chosen tracker for work. Neon, Railway,
 Resend and a model API are conditional additions, not setup requirements.
 Each row has:
 needed now / deferred / not applicable; account scope; configured; connected;
@@ -93,25 +110,25 @@ summary, fallback, blocker, and next action. Never save tokens, login URLs,
 callback codes, environment dumps, private customer data, or connection strings.
 Account/resource labels may still be sensitive: keep this record local by default.
 
-For a schema-1 record, preserve all existing provider evidence and add the schema-2
-ideation/stack fields as unknown/pending. Do not infer acceptance or a selected
-stack from the old template's provider list. Fill them through reconciliation,
-not by resetting onboarding or silently migrating the application.
-
-Existing schema-2 records may lack the additive general `ideation.feasibility`
-fields. Preserve provider evidence and prior AI findings; add missing general
-fields as pending/unknown. An AI review or successful login does not establish
-overall application feasibility, and missing fields do not justify restarting setup.
+For legacy schema-1/2 records, preserve provider evidence, accepted product
+decisions, AI findings, old `canonical_issue` links and any `temporary_intake`
+content. Reconcile requirements into root `spec.md` and deduplicate unfinished
+items into the selected tracker before new implementation. Set the schema-3 spec,
+tracker and delivery fields only from observed facts; missing review mode/access
+is pending, not solo or verified by default. Reuse valid legacy evidence without
+resetting setup, losing saved work or inferring new authority.
 
 On resume, recheck the workspace, identity, target environment, config, current
 permissions, and recent remote changes. Reuse valid evidence; stale evidence does
 not authorize writes. If the user declines or cancels, stop that flow without
-repeated prompts and continue independent local work.
+repeated prompts. Continue tracked independent local work when possible, or
+ideation/read-only discovery while tracker access is unavailable.
 
-When GitHub becomes available, reconcile bootstrap work with existing issues and
-migrate unfinished items once, recording issue URLs. For each task preserve its
-outcome, acceptance, dependencies, owner, and verified completion; deduplicate
-against closed work. Keep specifications as design context, not a parallel tracker.
+On resume, reconcile spec revision/requirement IDs, selected tracker work,
+branch/PR and actual review state. Preserve outcome, acceptance, dependencies,
+ownership and valid completion evidence; deduplicate against closed work. Keep
+requirements in `spec.md`, execution authority in the charter and progress in
+the tracker. A changed requirement reopens affected work/review, not every login.
 
 ## Permission model for an agent-operated SDLC
 

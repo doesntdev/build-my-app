@@ -1,5 +1,50 @@
 # Build My App — validation record
 
+## 0.3.0 — spec-driven tracked and reviewed delivery
+
+Local package qualification performed on 2026-11-09 on `work/spec-driven-sdlc`.
+This changes application-workflow instructions, templates/state and regression
+contracts, not helper runtime behavior or destination repository protections.
+
+| Check | Observed result |
+| --- | --- |
+| Manifest-only installation | 44 allowlisted files; dry run made no target, apply succeeded, identical rerun was unchanged and all installed file bytes matched source |
+| Installed package validator | Valid on Python 3.14.9 and 3.11.15 |
+| Installed offline unittest suite | 91 tests passed on each interpreter, including the new SDLC instruction/state/template contracts |
+| Independent instruction review | All eight bounded tabletop cases consistent; seven reviewed file hashes rechecked unchanged by the parent |
+| Review cases | Existing alternative tracker; all trackers unavailable; assigned but incomplete team review; solo plus required independent approval; unreviewed promotion; changed head; dirty/active merged worktree; failed later staging after a safely disposable head merged |
+| Local prerequisite doctor | Required Git/Node checks passed; global Wrangler absent, optional gh version check timed out; app health and provider auth not tested |
+| Customized-install refusal | Differing SKILL.md rejected with exit 2 and customization preserved |
+| Cleanup and preservation | Owned temporary install removed and exact absence verified; 405,504 allocated bytes / 261,245 file bytes removed; source core and 101 existing graph entries unchanged |
+| Entrypoint size | 11,648 -> 12,351 bytes; 6.04% growth; specialist details remain in references |
+
+The qualified source-core SHA-256 is
+`ae0ac9b21a20f954a42e36e0463e5e63f6b381b349d173269eb33cbdaf286187`,
+using sorted manifest paths, each UTF-8 path followed by NUL and its SHA-256
+file-digest bytes, excluding this validation record. The final manifest-only
+record validation passed on both interpreters; unchanged core execution evidence is reused.
+
+The full developer-checkout suite initially reported one strict package-boundary
+failure from retained, unallowlisted Graphify artifacts. This was not hidden or
+fixed by weakening the validator or deleting the graph. The complete distributable
+was installed from the manifest and both full offline suite executions above passed.
+
+The requirements source is now root `spec.md`, developed during ideation; real
+tracker work precedes coding. Work and promotion PRs require current review,
+team/solo mode is not guessed, and unsafe cleanup remains explicitly incomplete.
+The onboarding order was reconciled so tracker/review/branch setup precedes the
+first coding slice; legacy evidence is preserved without restoring untracked intake.
+
+The review was static/tabletop, not live application execution, a native GitHub
+approval or a behavioral reliability benchmark. No real issue/PR/review, branch
+promotion, provider OAuth, hosted environment, production acceptance or deployment
+was exercised. No cloud resource, paid inference, GitHub Actions query/run or active
+client installation was part of qualification. The temporary install was disposable;
+source publication, release and installation remain separate owner-authorized work.
+At qualification, the active unmerged source branch and primary checkout were
+retained for handoff. Subsequent owner-authorized publication and merged-branch
+retirement are separate operations recorded in Git history.
+
 ## 0.2.0 — general application feasibility refinement
 
 This refines the same unpublished local candidate on 2026-11-09. General

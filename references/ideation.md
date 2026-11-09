@@ -9,10 +9,23 @@ they become implementation commitments.
 
 ## Run an adaptive conversation
 
-Inspect the workspace and accepted charter first. New ideas get a short discovery
+Inspect the workspace, existing `spec.md` and execution charter first. New ideas get a short discovery
 conversation; resume/ship/fix/connect tasks reconcile changed assumptions rather
 than replaying discovery. Setup-only tasks need a scoped fit check, not a product
 interview. Don't delay urgent authorized incident containment.
+
+Create the application's root `spec.md` from [the template](../templates/spec.md)
+at the start of product discovery and update it **throughout ideation**, after
+substantive user decisions rather than reconstructing it only at the end. Capture
+outcomes, stable IDs such as `REQ-001`, acceptance, non-goals, feasibility/architecture
+decisions, risks, costs, evidence and unresolved questions. Mark draft, accepted
+and deferred requirements honestly; preserve changed/retired IDs and decision context.
+
+Before implementation, follow [SDLC](sdlc.md) to derive work in GitHub Issues or
+another verified selected issue tracker from the accepted spec revision. The spec
+is the requirements source, not a task backlog. An unresolved idea can produce a
+tracked feasibility experiment, not an implicitly approved feature. Keep execution
+status, ownership and PR progress in the tracker, with traceable requirement links.
 
 Identify the engineering traps yourself using source, tools and documentation;
 don't expect the user to diagnose races, database semantics or platform limits.
@@ -90,7 +103,7 @@ minor issues, and don't promise that an interview catches every future problem.
 Unknown is allowed. Use an explicit range or bounded experiment when evidence
 is incomplete. Resolve high-impact uncertainty before expensive/dependent work;
 continue independent safe work where possible. Unverified integration access is
-not an accepted architecture, but it need not block an unrelated local screen.
+not an accepted architecture, but it need not block an unrelated tracked local screen.
 A small budget or deadline never waives essential security or data correctness.
 
 ## Workload, cost and development burden
@@ -162,12 +175,14 @@ Different features may have different dispositions. Hold only the unsafe or
 unproved dependent work, not the whole project by default. Confirm consequential
 choices with the user; don't silently accept a risk or replace their idea.
 
-Record only material risks in the [charter](../templates/project-charter.md) and
-non-secret onboarding state: concern, user/development impact, evidence/unknown,
+Record material requirements, decisions and risks in the evolving root `spec.md`
+using [the template](../templates/spec.md): concern, user/development impact, evidence/unknown,
 severity, recommendation, validation/mitigation, owner/next step and disposition
 (resolved, accepted, experiment, deferred or blocked). A small project needs a
-short list, not a new governance system. Unresolved acceptance work belongs in
-the existing issue workflow once connected, not a competing backlog.
+short list, not a new governance system. The [charter](../templates/project-charter.md)
+records execution authority; non-secret onboarding state points to the spec and
+selected tracker. Derive unresolved acceptance work into real tracker items before
+implementation, rather than treating the spec or a temporary file as a backlog.
 
 Revisit affected risks when scope, platform, integrations, complexity, workload,
 data sensitivity, budget or delivery constraints change, and when actual tests

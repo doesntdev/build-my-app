@@ -131,6 +131,8 @@ billing guarantee. Confirm exact data destination and budget authorization befor
 real inference; use deterministic fixture responses in ordinary local tests.
 
 
-Carry the findings, estimates and evidence into the general project charter.
+Carry product findings, estimates and evidence into the application's root
+`spec.md`, linked to the affected requirement IDs. Keep execution authority in
+the charter and derive experiments/implementation into the selected tracker.
 Return to [ideation](ideation.md) to agree the affected feature's next step;
 resolving AI costs does not establish feasibility of the rest of the application.

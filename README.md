@@ -26,7 +26,8 @@ publishing and production authority remain the user's decisions.
   Cursor, and Hermes**, plus a generic-client adaptation procedure.
 - Local Workers/D1/R2 development without cloud credentials; rootless Podman and
   local Postgres only for the selected container/database extension.
-- GitHub issue ownership, branch/PR coordination, relevant checks, staged releases, rollback,
+- Spec-derived tracked work in GitHub Issues or another issue tracker; ownership,
+  reviewed work/promotions through dev -> staging -> main, cleanup, rollback,
   incidents, and ongoing operations.
 - Portable Python helpers, templates, deterministic tests, and a package/privacy check.
 
@@ -61,6 +62,28 @@ and D1; add private R2 for files. Queues/Workflows, Durable Objects, Workers AI,
 Neon or Railway are added for actual needs. There is no invented user-count
 threshold or mandatory migration away from Cloudflare. See
 [stack selection](references/stack-selection.md) for triggers and trade-offs.
+
+## Spec-driven, reviewed delivery
+
+Ideation continuously creates/updates the application's root `spec.md`: stable
+requirements, acceptance, decisions, risks and explicit unknowns. Before coding,
+derive bounded work items in GitHub Issues or the user's selected issue tracker.
+Link requirement IDs and spec revision; use the tracker for execution status and
+ownership, not the spec or a temporary parallel backlog.
+
+Work branches start from `dev` and enter it through reviewed PRs. Releases use
+reviewed `dev` -> `staging` -> `main` promotion PRs, with comprehensive acceptance
+on the actual resulting staging and main revisions. Every PR is reviewed before
+merge: request named eligible non-author developers in a team; in a genuinely
+solo project, record a substantive separate self-review. Native self-approval
+is not fabricated and actual independent/CODEOWNER requirements still apply.
+
+Clean inactive regenerable caches during work and retire incorporated disposable
+work branches/worktrees after merges. Verify exact absence and source/runtime
+preservation; retain persistent integration branches, active/unique work and user
+data. Unresolved cleanup is explicitly incomplete, never a hidden leftover.
+See [SDLC](references/sdlc.md), [the spec template](templates/spec.md) and
+[workspace hygiene](references/workspace-hygiene.md).
 
 ## Install
 
@@ -108,8 +131,10 @@ folder does not register MCPs or grant access to any service.
 > explore the idea with me. Challenge feasibility, scalability, security,
 > complexity, integration, development and cost assumptions for every major feature.
 > Surface problems early and propose practical alternatives or proofs. Recommend the minimum
-> Cloudflare-first stack, agree a useful slice, then build locally and connect
-> only the services it needs. Ask before spending or publishing.
+> Cloudflare-first stack and build spec.md with me as we ideate. Derive tracked
+> work in the selected issue tracker, branch from dev, review every PR and promote
+> through staging to main. Clean caches and merged worktrees. Connect only needed
+> services; ask before spending or publishing.
 
 For an existing app:
 
@@ -124,8 +149,8 @@ For just setup:
 
 For a resume:
 
-> Resume build-my-app from the onboarding record and current GitHub
-> issue. Recheck access and ownership; don't repeat completed setup.
+> Resume build-my-app from spec.md, the onboarding record and selected tracker
+> work item. Recheck ownership, reviews and next promotion; don't repeat completed setup.
 
 ## Helpers
 

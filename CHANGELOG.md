@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.0
+
+- Develop root `spec.md` throughout ideation with stable requirements, acceptance and explicit decisions; derive tracked work before implementation in GitHub Issues or a selected alternative tracker.
+- Require work branches into dev, reviewed dev-to-staging and staging-to-main promotion PRs, and fresh stage-appropriate acceptance on resulting revisions.
+- Require qualified review before every merge: named non-author developer requests for teams or a substantive recorded solo self-review, without bypassing native independent-approval requirements.
+- Make cache and merged disposable branch/worktree cleanup a verified delivery obligation while preserving persistent branches, active/unique work, local data and required evidence.
+- Add a spec template, hygiene reference and SDLC regression contracts; align onboarding/state, work/PR/release templates, README and package contribution guidance.
+
 ## 0.2.0
 
 - Start with general application feasibility: technical fit, performance/scalability, security/privacy, complexity, integrations, correctness, development/test effort, usability, cost and operations; reuse accepted decisions on resume.

@@ -1,52 +1,32 @@
-# Project charter
+# Project execution charter
 
-- User and first useful workflow:
-- Measurable acceptance and non-goals:
-- Accepted first slice and deferred ambition (do not silently shrink the outcome):
-- Active users at launch/growth, actions per user, peak concurrency and retention:
-- Data volume, input/output sizes and critical read/write or job shape:
-- Existing repo/runtime/constraints:
-- Development/delivery constraints: builder skills, available time, target platforms, test data/environments and support owner:
-- Feasibility recommendation by feature: build / prove first / reshape / defer:
-- Complexity drivers, critical-path dependencies and required access/approvals:
-- Local-only or publication target:
-- Data classification, region and retention:
-- Auth, authorization and tenant model:
-- API and application MCP decision:
-- Durable side effects/events and recovery:
-- Performance/reliability targets and RPO/RTO:
-- Selected stack/services and purpose (start with Cloudflare; provision only needed parts):
-- Alternatives, excluded services and reasons; preserve existing supported investments:
-- Concrete upgrade triggers and next validation experiment:
-- AI task/quality target, model/version, privacy, context/output limits and review (if applicable):
-- Cost per completed action/user/month, expected/growth/burst cases and uncertainty:
-- Price/limit source URLs, units/currency, date checked, assumptions and exclusions:
-- Per-user/job/global budgets, admission/reservation, concurrency and retry/revision limits:
-- Provider account/resource labels (no secrets; keep private if sensitive):
-- Budget ceiling and cost owner:
-- Repository visibility and source license (separate from public deployment):
-- Release owner and approval boundaries:
-- Routine agent authority (specific repos, paths, environments, operations):
-- Known gaps and unresolved decisions:
-- User-accepted trade-offs and unverified/provisional decisions:
-- Canonical GitHub issue, or temporary bootstrap record and migration trigger:
+Product requirements, assumptions, acceptance and decisions live in the
+application's `spec.md`. This charter records execution/authority context, not a
+second spec or task backlog. Keep sensitive account/resource labels in ignored
+local state and link safe references here rather than exposing secrets.
 
-## Material feasibility risks
+- Spec path, current revision and accepted first slice/requirement IDs:
+- Selected issue tracker/project and canonical work-item links:
+- Existing repo/runtime and authoritative checkout:
+- Work branch convention/base; persistent dev, staging and main mapping:
+- Team/solo review mode, eligible reviewers/CODEOWNERS and actual review requirements:
+- Local-only, staging or production authority and release owner:
+- Routine agent authority: repositories, paths, environments and allowed operations:
+- Provider connection/resource scope (safe labels only):
+- Budget owner and bounded spending/resource authorization:
+- Development/support owner, time/device/access constraints:
+- Data-sensitivity/privacy constraints and required qualified approvals:
+- Cleanup ownership, disposable worktrees/caches and preserved runtime/evidence consumers:
+- Unresolved execution blockers and next action:
 
-Keep this short and proportional. Record technical, scaling, security, correctness,
-integration, development, usability, cost or operational concerns that could
-materially affect the outcome. This is not an AI-only register or a second backlog.
-
-| Concern and user/development impact | Evidence or unknown | Severity | Recommendation / alternatives | Proof or mitigation | Owner / next step | Disposition |
-| --- | --- | --- | --- | --- | --- | --- |
-
-Use resolved, accepted, experiment, deferred or blocked; never mark an unknown as
-accepted by default. Move actionable unfinished acceptance into the existing issue
-workflow when available, keeping this charter as the concise decision context.
+For an existing charter containing product requirements or risk decisions,
+reconcile them into `spec.md` with the user while preserving accepted decisions
+and evidence. Don't discard the old context, infer fresh approval or silently
+reinterpret completed work. Work status and ownership remain in the tracker.
 
 ## Canonical commands
 
-Document the actual project-specific commands after verifying them: start local,
-check/test, selected-storage migration rehearsal, Workers bundle/runtime or selected
-Podman build/run, staged release, rollback. Mark irrelevant paths N/A with reasons.
-Do not fill this section with invented working commands.
+Record project-specific commands only after verification: local start, targeted
+checks, storage migration rehearsal, selected runtime build/smoke, comprehensive
+staging/main acceptance, release and recovery. Mark irrelevant paths N/A with
+reasons. Bind release/verification to actual revisions, not invented working commands.
